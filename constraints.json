@@ -1,0 +1,177 @@
+[
+// Creative Dance
+{
+  name: "creative Thursday",
+  level: "creative",
+  dayOfWeek: [ "Thu" ],
+  start: [ 15.5 ]
+  duration: 0.75, // hours
+},
+{
+  name: "creative Saturday",
+  level: "creative",
+  dayOfWeek: [ "Sat" ],
+  duration: 0.75, // hours
+  start: [ 8.75 ]
+},
+// Primary
+{
+  name: "primary Wednesday",
+  level: "primary",
+  dayOfWeek: [ "Wed" ],
+  start: [ 16.0 ]
+  duration: 1.0, // hours
+},
+{
+  name: "primary Saturday",
+  level: "primary",
+  dayOfWeek: [ "Sat" ],
+  start: [ 9.0 ]
+  duration: 1.0, // hours
+},
+// Prep
+{
+  name: "prep Tuesday",
+  level: "prep",
+  dayOfWeek: [ "Tue" ],
+  start: [ 16.5 ]
+  duration: 1.0, // hours
+},
+{
+  name: "prep Saturday",
+  level: "prep",
+  dayOfWeek: [ "Sat" ],
+  start: [ 9.5 ]
+  duration: 1.0, // hours
+},
+{
+  name: "Modern 1",
+  level: "prep",
+  dayOfWeek: [ "Fri" ],
+  start: [ 17.0 ]
+  duration: 1.0, // hours
+},
+
+{
+  name: "Ballet 1A",
+  level: "prep",
+  dayOfWeek: [ "Sat" ],
+  start: [ 10.5 ]
+  duration: 1.0, // hours
+},
+{
+  name: "Ballet 1B",
+  level: "prep",
+  dayOfWeek: [ "Fri" ],
+  start: [ 16.0 ]
+  duration: 1.0, // hours
+},
+  // Proficiency
+{
+  name: "Ballet 2",
+  level: "pro 2",
+  duration: 1.25, // hours
+},
+{
+  name: "Ballet 2 + 3",
+  level: "pro 3",  // Also pro 2
+  dayOfWeek: [ "Sat" ],
+  duration: 1.5, // hours
+},
+{
+  name: "Modern 2",
+  level: "pro 2",
+  duration: 1.25, // hours
+},
+{
+  name: "Ballet 3 (1 of 2)",
+  level: "pro 3",
+  duration: 1.5, // hours
+},
+{
+  name: "Ballet 3 (2 of 2)",
+  level: "pro 3",
+  duration: 1.5, // hours
+},
+{
+  name: "Modern 3",
+  level: "pro 3",
+  duration: 1.25, // hours
+},
+{
+  name: "Pre-Pointe",
+  level: "pro 3",
+  duration: 0.75, // hours
+},
+{
+  name: "Ballet 4 (1 of 3)",
+  level: "pro 4",
+  duration: 1.5, // hours
+},
+{
+  name: "Ballet 3 (2 of 3)",
+  level: "pro 4",
+  duration: 1.5, // hours
+},
+{
+  name: "Ballet 3 (3 of 3)",
+  level: "pro 4",
+  duration: 1.5, // hours
+},
+{
+  name: "Modern 4",
+  level: "pro 4",
+  duration: 1.5, // hours
+},
+{
+  name: "Pointe 4",
+  level: "pro 4",
+  duration: 1.0, // hours
+},
+{
+  name: "Composition",
+  level: "pro 4",  // Also levels pro 5 and pro 6
+  duration: 1.0, // hours
+},
+{
+  name: "Ballet 6 (1 of 4)",
+  level: "pro 6",
+  duration: 1.5, // hours
+},
+{
+  name: "Ballet 6 (2 of 4)",
+  level: "pro 6",
+  duration: 1.5, // hours
+},
+{
+  name: "Ballet 6 (3 of 4)",
+  level: "pro 6",
+  duration: 1.5, // hours
+},
+{
+  name: "Ballet 6 (4 of 4)",
+  level: "pro 6",
+  duration: 1.75, // hours
+},
+{
+  name: "Modern Partnering",
+  level: "pro 6",
+  duration: 1.5, // hours
+},
+{
+  name: "Modern Horton",
+  level: "pro 6",
+  duration: 1.5, // hours
+},
+{
+  name: "Pointe 6 (1 of 2)",
+  level: "pro 6",
+  duration: 1.0, // hours
+},
+{
+  name: "Pointe 6 (2 of 2)",
+  level: "pro 6",
+  duration: 1.0, // hours
+},
+]
+  
