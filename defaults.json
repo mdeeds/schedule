@@ -1,0 +1,4 @@
+{
+  teachers: [ "Christine", "Karena", "Robbi" ]
+  dayOfWeek: [ "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" ]
+}
