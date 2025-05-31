@@ -134,6 +134,31 @@
   duration: 1.0, // hours
 },
 {
+  name: "Ballet 5 (1 of 3)",
+  level: "pro 5",
+  duration: 1.5, // hours
+},
+{
+  name: "Ballet 5 (2 of 3)",
+  level: "pro 5",
+  duration: 1.5, // hours
+},
+{
+  name: "Ballet 6 (3 of 3)",
+  level: "pro 5",
+  duration: 1.5, // hours
+},
+{
+  name: "Pointe 5 (1 of 2)",
+  level: "pro 5",
+  duration: 1.0, // hours
+},
+{
+  name: "Pointe 5 (2 of 2)",
+  level: "pro 5",
+  duration: 1.0, // hours
+},
+{
   name: "Ballet 6 (1 of 4)",
   level: "pro 6",
   duration: 1.5, // hours
@@ -155,12 +180,12 @@
 },
 {
   name: "Modern Partnering",
-  level: "pro 6",
+  level: "pro 6",  // Also pro 5
   duration: 1.5, // hours
 },
 {
   name: "Modern Horton",
-  level: "pro 6",
+  level: "pro 6",  // Also pro 5
   duration: 1.5, // hours
 },
 {
