@@ -50,6 +50,7 @@
   dayOfWeek: [ "Fri" ],
   start: [ 17.0 ]
   duration: 1.0, // hours
+  teacher: [ "Christina", "Eva", "Robbi" ]
 },
 
 {
@@ -58,6 +59,7 @@
   dayOfWeek: [ "Sat" ],
   start: [ 10.5 ]
   duration: 1.0, // hours
+  teacher: [ "Karena", "Eva" ]
 },
 {
   name: "Ballet 1B",
@@ -65,38 +67,45 @@
   dayOfWeek: [ "Fri" ],
   start: [ 16.0 ]
   duration: 1.0, // hours
+  teacher: [ "Karena", "Eva" ]
 },
   // Proficiency
 {
   name: "Ballet 2",
   level: "pro 2",
   duration: 1.25, // hours
+  teacher: [ "Karena", "Eva" ]
 },
 {
   name: "Ballet 2 + 3",
   level: "pro 3",  // Also pro 2
   dayOfWeek: [ "Sat" ],
   duration: 1.5, // hours
+  teacher: [ "Karena" ]
 },
 {
   name: "Modern 2",
   level: "pro 2",
   duration: 1.25, // hours
+  teacher: [ "Christina", "Eva", "Robbi" ]
 },
 {
   name: "Ballet 3 (1 of 2)",
   level: "pro 3",
   duration: 1.5, // hours
+  teacher: [ "Karena", "Eva" ]
 },
 {
   name: "Ballet 3 (2 of 2)",
   level: "pro 3",
   duration: 1.5, // hours
+  teacher: [ "Karena", "Eva" ]
 },
 {
   name: "Modern 3",
   level: "pro 3",
   duration: 1.25, // hours
+  teacher: [ "Christina", "Eva", "Robbi" ]
 },
 {
   name: "Pre-Pointe",
@@ -107,76 +116,91 @@
   name: "Ballet 4 (1 of 3)",
   level: "pro 4",
   duration: 1.5, // hours
+  teacher: [ "Karena", "Eva" ]
 },
 {
   name: "Ballet 3 (2 of 3)",
   level: "pro 4",
   duration: 1.5, // hours
+  teacher: [ "Karena", "Eva" ]
 },
 {
   name: "Ballet 3 (3 of 3)",
   level: "pro 4",
   duration: 1.5, // hours
+  teacher: [ "Karena", "Eva" ]
 },
 {
   name: "Modern 4",
   level: "pro 4",
   duration: 1.5, // hours
+  teacher: [ "Christina", "Eva", "Robbi" ]
 },
 {
   name: "Pointe 4",
   level: "pro 4",
   duration: 1.0, // hours
+  teacher: [ "Karena" ]
 },
 {
   name: "Composition",
   level: "pro 4",  // Also levels pro 5 and pro 6
   duration: 1.0, // hours
+  teacher: [ "Karena" ]
 },
 {
   name: "Ballet 5 (1 of 3)",
   level: "pro 5",
   duration: 1.5, // hours
+  teacher: [ "Karena", "Eva" ]
 },
 {
   name: "Ballet 5 (2 of 3)",
   level: "pro 5",
   duration: 1.5, // hours
+  teacher: [ "Karena", "Eva" ]
 },
 {
   name: "Ballet 6 (3 of 3)",
   level: "pro 5",
   duration: 1.5, // hours
+  teacher: [ "Karena", "Eva" ]
 },
 {
   name: "Pointe 5 (1 of 2)",
   level: "pro 5",
   duration: 1.0, // hours
+  teacher: [ "Karena" ]
 },
 {
   name: "Pointe 5 (2 of 2)",
   level: "pro 5",
   duration: 1.0, // hours
+  teacher: [ "Karena" ]
 },
 {
   name: "Ballet 6 (1 of 4)",
   level: "pro 6",
   duration: 1.5, // hours
+  teacher: [ "Karena", "Eva" ]
 },
 {
   name: "Ballet 6 (2 of 4)",
   level: "pro 6",
   duration: 1.5, // hours
+  teacher: [ "Karena", "Eva" ]
 },
 {
   name: "Ballet 6 (3 of 4)",
   level: "pro 6",
   duration: 1.5, // hours
+  teacher: [ "Karena", "Eva" ]
 },
 {
   name: "Ballet 6 (4 of 4)",
   level: "pro 6",
   duration: 1.75, // hours
+  teacher: [ "Karena", "Eva" ]
 },
 {
   name: "Modern Partnering",
@@ -187,16 +211,19 @@
   name: "Modern Horton",
   level: "pro 6",  // Also pro 5
   duration: 1.5, // hours
+  teacher: [ "Robbi" ]
 },
 {
   name: "Pointe 6 (1 of 2)",
   level: "pro 6",
   duration: 1.0, // hours
+  teacher: [ "Karena" ]
 },
 {
   name: "Pointe 6 (2 of 2)",
   level: "pro 6",
   duration: 1.0, // hours
+  teacher: [ "Karena" ]
 },
 ]
   
