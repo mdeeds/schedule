@@ -1,198 +1,122 @@
 // --- DATA STORAGE ---
-let levels = []; // { id, name }
-let teachers = []; // { id, name }
-let rooms = []; // { id, name }
-let definedClasses = []; // { id, name, duration, eligibleLevelIds: [], potentialTeacherIds: [] }
-let timeSlots = []; // { id, day, startHour, label }
+let definedClasses = []; // { id, name, duration, levels: [], potentialTeachers: [] }
+let allTimeSlots = []; // { id, day, startHour, label }
+let allLevels = []; // string
+let allTeachers = []; // string
 
-let solutions = [];
+let solutions = []; // Array of solution objects, each solution is an array of assignment objects { classId, teacherName, roomId, timeSlotIndex }
 const MAX_SOLUTIONS_DEFAULT = 10;
-
-// --- DOM ELEMENTS ---
-const numLevelsEl = document.getElementById('numLevels');
-const numTeachersEl = document.getElementById('numTeachers');
-const numRoomsEl = document.getElementById('numRooms');
-const confirmSetupCountsBtn = document.getElementById('confirmSetupCounts');
-const namesSetupEl = document.getElementById('names-setup');
-const levelsNamesSetupEl = document.getElementById('levels-names-setup');
-const teachersNamesSetupEl = document.getElementById('teachers-names-setup');
-const roomsNamesSetupEl = document.getElementById('rooms-names-setup');
-const saveNamesBtn = document.getElementById('saveNames');
-
-const classesSectionEl = document.getElementById('classes-section');
-const classNameEl = document.getElementById('className');
-const classDurationEl = document.getElementById('classDuration');
-const classLevelsEl = document.getElementById('classLevels');
-const classTeachersEl = document.getElementById('classTeachers');
-const addClassBtn = document.getElementById('addClassBtn');
-const classesListEl = document.getElementById('classesList');
-
-const scheduleConfigSectionEl = document.getElementById('schedule-config-section');
-const operatingDaysEl = document.getElementById('operatingDays');
-const startTimeEl = document.getElementById('startTime');
-const endTimeEl = document.getElementById('endTime');
-const saveScheduleConfigBtn = document.getElementById('saveScheduleConfig');
 
 const solverControlsSectionEl = document.getElementById('solver-controls-section');
 const solveBtn = document.getElementById('solveBtn');
-const clearDataBtn = document.getElementById('clearDataBtn');
 const maxSolutionsEl = document.getElementById('maxSolutions');
 
 const solutionsDisplayEl = document.getElementById('solutionsDisplay');
+const scheduleTableEl = document.getElementById('scheduleTable');
 const loadingModalEl = document.getElementById('loadingModal');
 
-const DAYS_OF_WEEK = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+const DAYS_OF_WEEK = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 // --- UTILITY FUNCTIONS ---
 function generateId() {
   return crypto.randomUUID();
 }
 
-function showElement(el) { el.classList.remove('hidden'); }
-function hideElement(el) { el.classList.add('hidden'); }
-
-function showAlert(message, type = 'info') {
-  // Simple alert for now, can be replaced with a styled modal
-  console.log(`ALERT (${type}): ${message}`);
-  const tempAlert = document.createElement('div');
-  tempAlert.className = `fixed top-5 right-5 p-4 rounded-md shadow-lg text-white ${type === 'error' ? 'bg-red-500' : (type === 'success' ? 'bg-green-500' : 'bg-blue-500')}`;
-  tempAlert.textContent = message;
-  document.body.appendChild(tempAlert);
-  setTimeout(() => tempAlert.remove(), 3000);
+/** 
+ * Constructs label names like 'Mon 16:45'
+ * Day is a three letter string, and startHour is a number.  16.75 = 16:45.
+ */
+function makeTimeSlotName(day, startHour) {
+  const hour = Math.floor(startHour);
+  const minute = (startHour - hour) * 60;
+  const formattedMinute = minute < 10 ? '0' + minute : minute;
+  return `${day} ${hour}:${formattedMinute}`;
 }
 
-// --- SETUP FUNCTIONS ---
-function populateTimeDropdowns() {
-  for (let i = 0; i < 24; i++) {
-    const hour = i.toString().padStart(2, '0');
-    const optionStart = new Option(`${hour}:00`, i);
-    const optionEnd = new Option(`${hour}:00`, i);
-    startTimeEl.add(optionStart);
-    endTimeEl.add(optionEnd);
+function makeTimeSlotsForDay(day, fromHour, toHour) {
+  const timeSlots = [];
+  for (let hour = fromHour; hour <= toHour; hour += 0.25) {
+    timeSlots.push({
+      day: day,
+      startHour: hour,
+      label: makeTimeSlotName(day, hour)
+    });
   }
-  startTimeEl.value = "16"; // Default 4 PM
-  endTimeEl.value = "21";   // Default 9 PM
+  return timeSlots;
 }
 
-function populateDayCheckboxes() {
-  operatingDaysEl.innerHTML = '';
-  DAYS_OF_WEEK.forEach((day, index) => {
-    const div = document.createElement('div');
-    div.className = 'flex items-center';
-    const input = document.createElement('input');
-    input.type = 'checkbox';
-    input.id = `day-${day}`;
-    input.value = day;
-    input.className = 'h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500';
-    if (index < 5) input.checked = true; // Default Mon-Fri
-    const label = document.createElement('label');
-    label.htmlFor = `day-${day}`;
-    label.className = 'ml-2 block text-sm text-gray-900';
-    label.textContent = day;
-    div.appendChild(input);
-    div.appendChild(label);
-    operatingDaysEl.appendChild(div);
-  });
+function makeTimeSlots(days, fromHour, toHour) {
+  let combinedSlots = [];
+  for (const day of days) {
+    const daySlots = makeTimeSlotsForDay(day, fromHour, toHour); // Returns array of {day, startHour, label}
+    combinedSlots = combinedSlots.concat(daySlots);
+  }
+  return combinedSlots;
 }
 
-confirmSetupCountsBtn.addEventListener('click', () => {
-  const numL = parseInt(numLevelsEl.value);
-  const numT = parseInt(numTeachersEl.value);
-  const numR = parseInt(numRoomsEl.value);
-
-  if (isNaN(numL) || isNaN(numT) || isNaN(numR) || numL <= 0 || numT <= 0 || numR <= 0) {
-    showAlert("Please enter valid positive numbers for counts.", "error");
-    return;
-  }
-  createNameInputs('levels', numL, levelsNamesSetupEl, "Level");
-  createNameInputs('teachers', numT, teachersNamesSetupEl, "Teacher");
-  createNameInputs('rooms', numR, roomsNamesSetupEl, "Room");
-  showElement(namesSetupEl);
-});
-
-function createNameInputs(type, count, container, placeholderPrefix) {
-  container.innerHTML = `<h3 class="text-lg font-medium text-gray-700 mb-2">Define ${type.charAt(0).toUpperCase() + type.slice(1)} Names:</h3>`;
-  for (let i = 0; i < count; i++) {
-    const input = document.createElement('input');
-    input.type = 'text';
-    input.className = 'input-field mb-2';
-    input.placeholder = `${placeholderPrefix} ${i + 1} Name`;
-    input.dataset.type = type;
-    input.dataset.index = i;
-    container.appendChild(input);
-  }
+function showAlert(message, type) {
+  const messageString = `${type}: ${message}`
+  console.log(messageString);
+  const div = document.createElement('div');
+  div.innerText = messageString;
+  document.body.appendChild(div);
+  hideElement(loadingModalEl);
 }
 
-saveNamesBtn.addEventListener('click', () => {
-  levels = []; teachers = []; rooms = []; // Reset
-  let allNamesFilled = true;
-
-  document.querySelectorAll('#levels-names-setup input').forEach(input => {
-    if (!input.value.trim()) allNamesFilled = false;
-    levels.push({ id: generateId(), name: input.value.trim() || `Level ${parseInt(input.dataset.index) + 1}` });
-  });
-  document.querySelectorAll('#teachers-names-setup input').forEach(input => {
-    if (!input.value.trim()) allNamesFilled = false;
-    teachers.push({ id: generateId(), name: input.value.trim() || `Teacher ${parseInt(input.dataset.index) + 1}` });
-  });
-  document.querySelectorAll('#rooms-names-setup input').forEach(input => {
-    if (!input.value.trim()) allNamesFilled = false;
-    rooms.push({ id: generateId(), name: input.value.trim() || `Room ${parseInt(input.dataset.index) + 1}` });
-  });
-
-  if (!allNamesFilled) {
-    showAlert("Some names are empty. Default names will be used if left blank.", "info");
-  }
-
-  populateClassDefinitionDropdowns();
-  showElement(classesSectionEl);
-  showElement(scheduleConfigSectionEl);
-  showAlert("Names saved. Proceed to define classes and operating hours.", "success");
-});
-
-function populateClassDefinitionDropdowns() {
-  classLevelsEl.innerHTML = '';
-  levels.forEach(level => {
-    const option = new Option(level.name, level.id);
-    classLevelsEl.add(option);
-  });
-
-  classTeachersEl.innerHTML = '';
-  teachers.forEach(teacher => {
-    const option = new Option(teacher.name, teacher.id);
-    classTeachersEl.add(option);
-  });
+function showElement(element) {
+  element.classList.remove('hidden');
 }
 
-// --- CLASS DEFINITION FUNCTIONS ---
-addClassBtn.addEventListener('click', () => {
-  const name = classNameEl.value.trim();
-  const duration = parseInt(classDurationEl.value); // Fixed at 1 for now
-  const eligibleLevelIds = Array.from(classLevelsEl.selectedOptions).map(opt => opt.value);
-  const potentialTeacherIds = Array.from(classTeachersEl.selectedOptions).map(opt => opt.value);
+function hideElement(element) {
+  element.classList.add('hidden');
+}
 
-  if (!name) {
-    showAlert("Class name cannot be empty.", "error");
-    return;
-  }
-  if (eligibleLevelIds.length === 0) {
-    showAlert("Please select at least one eligible level.", "error");
-    return;
-  }
-  if (potentialTeacherIds.length === 0) {
-    showAlert("Please select at least one potential teacher.", "error");
-    return;
-  }
+async function loadClassInfo() {
+  try {
+    const response = await fetch('classInfo.json');
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
 
-  definedClasses.push({ id: generateId(), name, duration, eligibleLevelIds, potentialTeacherIds });
-  renderClassesList();
-  classNameEl.value = '';
-  classLevelsEl.selectedIndex = -1;
-  classTeachersEl.selectedIndex = -1;
-  showAlert("Class added successfully.", "success");
-});
+    // Assign loaded data, ensuring IDs are generated if not present
+    allLevels = getAllLevels(data.definedClasses);
+    allTeachers = getAllTeachers(data.definedClasses);
+    allRooms = data.rooms;
+    const timeSlotConfigs = data.timeSlots;
+    allTimeSlots = [];
+    timeSlotConfigs.forEach(config => {
+      allTimeSlots = allTimeSlots.concat(
+        makeTimeSlots(config.days, config.startHour, config.endHour));
+    });
+    for (let i = 0; i < allTimeSlots.length; i++) {
+      allTimeSlots[i].index = i;
+    }
+
+    definedClasses = data.definedClasses.map(item => ({
+      ...item,
+      id: item.id || generateId(),
+      potentialTeachers: item.potentialTeachers || allTeachers,
+      rooms: item.rooms || allRooms,
+      levels: item.levels || allLevels,
+      duration: item.duration || 1.0,
+    }));
+
+    console.log("Loaded Data:", { allLevels, allTeachers, allRooms, definedClasses });
+
+    renderClassesList();
+    showAlert("Class information loaded successfully.", "success");
+
+  } catch (error) {
+    console.error("Error loading class info:", error);
+    showAlert(`Failed to load class information: ${error.message}`, "error");
+    // Keep the UI in a state where manual input might be possible or show an error message
+  }
+  return;
+}
 
 function renderClassesList() {
+  const classesListEl = document.getElementById('classes-list-section');
   classesListEl.innerHTML = '<h3 class="text-lg font-medium text-gray-700 mb-2">Defined Classes:</h3>';
   if (definedClasses.length === 0) {
     classesListEl.innerHTML += '<p class="text-sm text-gray-500">No classes added yet.</p>';
@@ -200,78 +124,28 @@ function renderClassesList() {
   }
   const ul = document.createElement('ul');
   ul.className = 'divide-y divide-gray-200';
-  definedClasses.forEach(cls => {
+
+  for (const classInfo of definedClasses) {
     const li = document.createElement('li');
     li.className = 'list-item';
-
-    const classInfo = document.createElement('span');
-    const levelNames = cls.eligibleLevelIds.map(id => levels.find(l => l.id === id)?.name).join(', ');
-    const teacherNames = cls.potentialTeacherIds.map(id => teachers.find(t => t.id === id)?.name).join(', ');
-    classInfo.textContent = `${cls.name} (Levels: ${levelNames || 'N/A'}; Teachers: ${teacherNames || 'N/A'})`;
-
-    const removeBtn = document.createElement('button');
-    removeBtn.textContent = 'Remove';
-    removeBtn.className = 'btn btn-secondary btn-sm py-1 px-2';
-    removeBtn.onclick = () => {
-      definedClasses = definedClasses.filter(c => c.id !== cls.id);
-      renderClassesList();
-    };
-    li.appendChild(classInfo);
-    li.appendChild(removeBtn);
+    const classInfoSpan = document.createElement('span');
+    const levelNames = classInfo.levels.join(', ');
+    const teacherNames = classInfo.potentialTeachers.join(', ');
+    classInfoSpan.textContent = `${classInfo.name} (Levels: ${levelNames || 'N/A'}; Teachers: ${teacherNames || 'N/A'})`;
+    li.appendChild(classInfoSpan);
     ul.appendChild(li);
-  });
+  }
   classesListEl.appendChild(ul);
 }
-
-// --- SCHEDULE CONFIG FUNCTIONS ---
-saveScheduleConfigBtn.addEventListener('click', () => {
-  const selectedDays = Array.from(operatingDaysEl.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value);
-  const startH = parseInt(startTimeEl.value);
-  const endH = parseInt(endTimeEl.value);
-
-  if (selectedDays.length === 0) {
-    showAlert("Please select at least one operating day.", "error");
-    return;
-  }
-  if (startH >= endH) {
-    showAlert("Start time must be before end time.", "error");
-    return;
-  }
-
-  timeSlots = [];
-  selectedDays.forEach(day => {
-    for (let hour = startH; hour < endH; hour++) { // Assuming 1-hour slots
-      timeSlots.push({
-        id: `${day}${hour}`,
-        day: day,
-        startHour: hour,
-        label: `${day} ${hour}:00-${hour + 1}:00`
-      });
-    }
-  });
-
-  if (timeSlots.length === 0) {
-    showAlert("No time slots generated. Check operating hours.", "error");
-    return;
-  }
-
-  showElement(solverControlsSectionEl);
-  showAlert("Operating hours saved. You can now find schedules.", "success");
-  console.log("Generated Time Slots:", timeSlots);
-});
 
 
 // --- SOLVER LOGIC ---
 solveBtn.addEventListener('click', () => {
-  if (levels.length === 0 || teachers.length === 0 || rooms.length === 0) {
-    showAlert("Please complete studio setup (levels, teachers, rooms) first.", "error");
-    return;
-  }
   if (definedClasses.length === 0) {
     showAlert("Please define at least one class to schedule.", "error");
     return;
   }
-  if (timeSlots.length === 0) {
+  if (allTimeSlots.length === 0) {
     showAlert("Please configure studio operating hours to generate time slots.", "error");
     return;
   }
@@ -279,14 +153,21 @@ solveBtn.addEventListener('click', () => {
   solutions = [];
   solutionsDisplayEl.innerHTML = '<p class="text-gray-500">Searching for schedules...</p>';
   showElement(loadingModalEl);
+  // The assignments map is a mapping between resources (teachers, rooms, and student levels) and
+  // the time slots they are occupy.
+  // { teacher: { Karena: ["a", "a", null,  null, "c"] }, room: { ... } }
+  const initialAssignmentsMap = { teacher: {}, room: {}, level: {} };
+  // Initialize map structure for all known entities to avoid checking for key existence later
+  // allFoo are arrays of strings. 
+  allTeachers.forEach(t => initialAssignmentsMap.teacher[t] = []);
+  allRooms.forEach(r => initialAssignmentsMap.room[r] = []);
+  allLevels.forEach(l => initialAssignmentsMap.level[l] = []);
+
+  console.log(`Total time slots: ${allTimeSlots.length * allRooms.length / 4} hours`);
+  console.log(`Total time to schedule: ${definedClasses.reduce((sum, classObj) => sum + classObj.duration, 0)} hours`);
 
   // Use a timeout to allow the UI to update before starting the heavy computation
   setTimeout(() => {
-    const initialAssignmentsMap = { teacher: {}, room: {}, level: {} };
-    // Initialize map structure for all known entities to avoid checking for key existence later
-    teachers.forEach(t => initialAssignmentsMap.teacher[t.id] = {});
-    rooms.forEach(r => initialAssignmentsMap.room[r.id] = {});
-    levels.forEach(l => initialAssignmentsMap.level[l.id] = {});
 
     solveRecursive([...definedClasses], initialAssignmentsMap); // Pass a copy of definedClasses
 
@@ -300,40 +181,127 @@ solveBtn.addEventListener('click', () => {
   }, 100); // Small delay
 });
 
+let shownDomains = new Set();
+
 function getDomain(classToSchedule, currentAssignmentsMap) {
-  const domain = []; // Stores { classId, teacherId, roomId, timeSlotId }
+  const domain = []; // Stores { classId, teacherName, roomId, timeSlotIndex }
   const classInfo = definedClasses.find(c => c.id === classToSchedule.id);
 
-  for (const teacherId of classInfo.potentialTeacherIds) {
-    for (const room of rooms) { // room is {id, name}
-      for (const timeSlot of timeSlots) { // timeSlot is {id, day, startHour, label}
+  for (const teacher of classInfo.potentialTeachers) {
+    for (const room of allRooms) { // room is a string
+      const numSlots = Math.round(classInfo.duration * 4);
+      for (let i = 0; i < allTimeSlots.length - numSlots + 1; i++) {
+        // timeSlot is {id, day, startHour, label}
+        const firstTimeSlot = allTimeSlots[i];
         let conflict = false;
-
-        // 1. Teacher conflict
-        if (currentAssignmentsMap.teacher[teacherId] && currentAssignmentsMap.teacher[teacherId][timeSlot.id]) {
-          conflict = true;
-        }
-        // 2. Room conflict
-        if (!conflict && currentAssignmentsMap.room[room.id] && currentAssignmentsMap.room[room.id][timeSlot.id]) {
-          conflict = true;
-        }
-        // 3. Level conflict
-        if (!conflict) {
-          for (const levelId of classInfo.eligibleLevelIds) {
-            if (currentAssignmentsMap.level[levelId] && currentAssignmentsMap.level[levelId][timeSlot.id]) {
-              conflict = true;
-              break;
+        for (let j = 0; j < numSlots; j++) {
+          const timeSlot = allTimeSlots[i + j];
+          // Make sure this timeSlot is the same day as firstTimeSlot.
+          if (firstTimeSlot.label.slice(0, 3) !== timeSlot.label.slice(0, 3)) {
+            break;
+          }
+          // 1. Teacher conflict
+          if (currentAssignmentsMap.teacher[teacher] && currentAssignmentsMap.teacher[teacher][timeSlot.index]) {
+            conflict = true;
+            break;
+          }
+          // 2. Room conflict
+          if (!conflict && currentAssignmentsMap.room[room] && currentAssignmentsMap.room[room][timeSlot.index]) {
+            conflict = true;
+            break;
+          }
+          // 3. Level conflict
+          if (!conflict) {
+            for (const levelId of classInfo.levels) {
+              if (currentAssignmentsMap.level[levelId] && currentAssignmentsMap.level[levelId][timeSlot.index]) {
+                conflict = true;
+                break;
+              }
             }
           }
         }
-
         if (!conflict) {
-          domain.push({ classId: classToSchedule.id, teacherId, roomId: room.id, timeSlotId: timeSlot.id });
+          domain.push({
+            classId: classToSchedule.id, teacherName: teacher, room,
+            timeSlotIndex: firstTimeSlot.index, duration: classInfo.duration
+          });
         }
       }
     }
   }
+  if (!shownDomains.has(classToSchedule.id)) {
+    shownDomains.add(classToSchedule.id);
+    console.log(`Class: ${classInfo.name} ${domain.length}`);
+  }
+
   return domain;
+}
+
+function buildSolution() {
+  const currentSolution = [];
+  // Iterate through all classes that were *supposed* to be scheduled.
+  // The global `definedClasses` holds the original list of all classes.
+  for (const classDef of definedClasses) {
+    const classId = classDef.id;
+    let teacherNameFound = null;
+    let startTimeSlotIndexFound = -1;
+    let roomIdFound = null;
+
+    // Find this class's assignment in the assignmentsMap.
+    // We need its teacher, room, and *start* timeSlotIndex.
+    teacherSearchLoop:
+    for (const teacherName in assignmentsMap.teacher) {
+      for (const slotKey in assignmentsMap.teacher[teacherName]) {
+        if (assignmentsMap.teacher[teacherName][slotKey] === classId) {
+          const currentSlotIndex = parseInt(slotKey);
+          // Check if this is the start slot for this class taught by this teacher
+          const isStartSlot = (currentSlotIndex === 0) ||
+            !assignmentsMap.teacher[teacherName][currentSlotIndex - 1] ||
+            (assignmentsMap.teacher[teacherName][currentSlotIndex - 1] !== classId);
+
+          if (isStartSlot) {
+            teacherNameFound = teacherName;
+            startTimeSlotIndexFound = currentSlotIndex;
+            // Find the room for this classId at its start timeSlotIndex
+            for (const roomName in assignmentsMap.room) {
+              if (assignmentsMap.room[roomName][startTimeSlotIndexFound] === classId) {
+                roomIdFound = roomName;
+                break; // Found room
+              }
+            }
+            break teacherSearchLoop; // Found all details for this class
+          }
+        }
+      }
+    }
+
+    if (teacherNameFound && startTimeSlotIndexFound !== -1) {
+      currentSolution.push({
+        classId: classId,
+        className: classDef.name,
+        teacherName: teacherNameFound,
+        roomId: roomIdFound, // This will be the room name/ID string
+        roomName: roomIdFound, // Using roomId as roomName
+        timeSlotIndex: startTimeSlotIndexFound,
+        timeSlotLabel: allTimeSlots[startTimeSlotIndexFound].label,
+        duration: classDef.duration // Useful for verifying/displaying
+      });
+    } else {
+      // This indicates a discrepancy if unscheduledClasses.length was 0.
+      // It means a class from the original set was not found in the assignmentsMap.
+      console.warn(`Solution Inconsistency: Class ${classDef.name} (ID: ${classId}) was expected but not found in the final assignmentsMap for a complete solution.`);
+    }
+  }
+  return currentSolution;
+}
+
+let lastLogTime = -1;
+function logEvery10Seconds(message) {
+  const nowTime = Date.now();
+  if (nowTime - lastLogTime > 10000) {
+    console.log(message);
+    lastLogTime = nowTime;
+  }
 }
 
 function solveRecursive(unscheduledClasses, assignmentsMap) {
@@ -342,37 +310,13 @@ function solveRecursive(unscheduledClasses, assignmentsMap) {
     return true; // Stop if max solutions found
   }
 
+  // logEvery10Seconds(`Unscheduled: ${unscheduledClasses.length}`);
+
   if (unscheduledClasses.length === 0) {
     // All classes scheduled, found a solution
-    const currentSolution = [];
-    // Reconstruct solution from assignmentsMap
-    // Iterate through assigned class slots to build the solution entry
-    const scheduledClassIds = new Set();
-
-    // Iterate teachers to find their assignments
-    for (const teacherId in assignmentsMap.teacher) {
-      for (const timeSlotId in assignmentsMap.teacher[teacherId]) {
-        const classId = assignmentsMap.teacher[teacherId][timeSlotId];
-        if (classId && !scheduledClassIds.has(`${classId}-${timeSlotId}`)) { // Ensure each class assignment is added once
-          const classInfo = definedClasses.find(c => c.id === classId);
-          const roomEntry = Object.entries(assignmentsMap.room).find(([rId, slots]) => slots[timeSlotId] === classId);
-          const roomId = roomEntry ? roomEntry[0] : null;
-
-          currentSolution.push({
-            classId: classId,
-            className: classInfo.name,
-            teacherId: teacherId,
-            teacherName: teachers.find(t => t.id === teacherId).name,
-            roomId: roomId,
-            roomName: rooms.find(r => r.id === roomId)?.name || 'Unknown Room',
-            timeSlotId: timeSlotId,
-            timeSlotLabel: timeSlots.find(ts => ts.id === timeSlotId).label
-          });
-          scheduledClassIds.add(`${classId}-${timeSlotId}`);
-        }
-      }
-    }
+    const currentSolution = buildSolution();
     solutions.push(currentSolution);
+    console.log('Found a solution!');
     return solutions.length >= MAX_SOLUTIONS; // Stop if max solutions found
   }
 
@@ -399,34 +343,44 @@ function solveRecursive(unscheduledClasses, assignmentsMap) {
   }
 
   if (minDomainSize === 0) { // If the chosen class has no valid assignments, this path is a dead end
+    logEvery10Seconds(`Cannot schedule ${bestClassToSchedule.name}`);
     return false;
   }
 
   const nextUnscheduledClasses = unscheduledClasses.filter(c => c.id !== bestClassToSchedule.id);
 
-  for (const assignment of smallestDomain) { // assignment = { classId, teacherId, roomId, timeSlotId }
+  for (const assignment of smallestDomain) { // assignment = { classId, teacherName, roomId, timeSlotIndex }
     // Apply assignment
-    assignmentsMap.teacher[assignment.teacherId][assignment.timeSlotId] = assignment.classId;
-    assignmentsMap.room[assignment.roomId][assignment.timeSlotId] = assignment.classId;
+    const numSlots = Math.round(assignment.duration * 4);
+
     const classInfo = definedClasses.find(c => c.id === assignment.classId);
-    for (const levelId of classInfo.eligibleLevelIds) {
-      assignmentsMap.level[levelId] = assignmentsMap.level[levelId] || {}; // Ensure levelId entry exists
-      assignmentsMap.level[levelId][assignment.timeSlotId] = assignment.classId;
+    for (let i = 0; i < numSlots; i++) {
+      const timeSlotIndex = assignment.timeSlotIndex + i;
+      assignmentsMap.teacher[assignment.teacherName][timeSlotIndex] = assignment.classId;
+      assignmentsMap.room[assignment.room][timeSlotIndex] = assignment.classId;
+      for (const levelId of classInfo.levels) {
+        assignmentsMap.level[levelId] = assignmentsMap.level[levelId] || {}; // Ensure levelId entry exists
+        assignmentsMap.level[levelId][timeSlotIndex] = assignment.classId;
+      }
     }
 
     if (solveRecursive(nextUnscheduledClasses, assignmentsMap)) {
       return true; // Propagate stop signal
     }
 
-    // Backtrack: Remove assignment
-    delete assignmentsMap.teacher[assignment.teacherId][assignment.timeSlotId];
-    delete assignmentsMap.room[assignment.roomId][assignment.timeSlotId];
-    for (const levelId of classInfo.eligibleLevelIds) {
-      if (assignmentsMap.level[levelId]) { // Check if levelId entry exists before deleting
-        delete assignmentsMap.level[levelId][assignment.timeSlotId];
+    for (let i = 0; i < numSlots; ++i) {
+      // Backtrack: Remove assignment
+      const timeSlotIndex = assignment.timeSlotIndex + i;
+      assignmentsMap.teacher[assignment.teacherName][timeSlotIndex] = null;
+      assignmentsMap.room[assignment.room][timeSlotIndex] = null;
+      for (const levelId of classInfo.levels) {
+        if (assignmentsMap.level[levelId]) { // Check if levelId entry exists before deleting
+          assignmentsMap.level[levelId][timeSlotIndex] = null;
+        }
       }
     }
   }
+  // logEvery10Seconds(`Backtracking`);
   return false; // Exhausted this branch without reaching max solutions
 }
 
@@ -475,45 +429,18 @@ function renderSolutions() {
     solutionCard.appendChild(table);
     solutionsDisplayEl.appendChild(solutionCard);
   });
+
+  // Add a button to view the first solution in the table format
+  const viewTableBtn = document.createElement('button');
+  viewTableBtn.textContent = 'View First Schedule as Table';
+  viewTableBtn.className = 'btn btn-primary mt-4';
+  viewTableBtn.onclick = () => renderScheduleTable(solutions[0]);
+  solutionsDisplayEl.appendChild(viewTableBtn);
 }
 
-clearDataBtn.addEventListener('click', () => {
-  // Basic confirmation, could be a modal
-  if (confirm("Are you sure you want to reset all data and start over?")) {
-    levels = []; teachers = []; rooms = []; definedClasses = []; timeSlots = []; solutions = [];
-
-    numLevelsEl.value = "3";
-    numTeachersEl.value = "2";
-    numRoomsEl.value = "1";
-
-    hideElement(namesSetupEl);
-    levelsNamesSetupEl.innerHTML = '';
-    teachersNamesSetupEl.innerHTML = '';
-    roomsNamesSetupEl.innerHTML = '';
-
-    hideElement(classesSectionEl);
-    classNameEl.value = '';
-    renderClassesList();
-
-    hideElement(scheduleConfigSectionEl);
-    populateDayCheckboxes(); // Resets to default
-    populateTimeDropdowns(); // Resets to default
-
-    hideElement(solverControlsSectionEl);
-    solutionsDisplayEl.innerHTML = '<p class="text-gray-500">No schedules generated yet. Configure and run the solver.</p>';
-    showAlert("All data has been reset.", "info");
-  }
-});
-
 // --- INITIALIZATION ---
-function init() {
-  populateDayCheckboxes();
-  populateTimeDropdowns();
-  // Initially hide sections that depend on prior steps
-  hideElement(namesSetupEl);
-  hideElement(classesSectionEl);
-  hideElement(scheduleConfigSectionEl);
-  hideElement(solverControlsSectionEl);
+async function init() {
+  await loadClassInfo(); // Load data on startup
 }
 
 init();

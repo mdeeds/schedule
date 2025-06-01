@@ -1,0 +1,535 @@
+{
+  "rooms": [
+    {
+      "name": "Studio 1"
+    },
+    {
+      "name": "Studio 2"
+    }
+  ],
+  "timeSlots": [
+    {
+      "days": [
+        "Mon",
+        "Tue",
+        "Wed",
+        "Thu",
+        "Fri"
+      ],
+      "startHour": 15.00,
+      "endHour": 20.00
+    },
+    {
+      "days": [
+        "Sat"
+      ],
+      "startHour": 7.00,
+      "endHour": 14.00
+    }
+  ],
+  "definedClasses": [
+    {
+      "name": "creative Thursday",
+      "levels": [
+        "creative"
+      ],
+      "potentialTeachers": [
+        "Jasmine"
+      ],
+      "dayOfWeek": [
+        "Thu"
+      ],
+      "start": [
+        15.5
+      ],
+      "duration": 0.75
+    },
+    {
+      "name": "creative Saturday",
+      "levels": [
+        "creative"
+      ],
+      "potentialTeachers": [
+        "Jasmine"
+      ],
+      "dayOfWeek": [
+        "Sat"
+      ],
+      "duration": 0.75,
+      "start": [
+        8.75
+      ]
+    },
+    {
+      "name": "primary Wednesday",
+      "levels": [
+        "primary"
+      ],
+      "potentialTeachers": [
+        "Christine",
+        "Jasmine"
+      ],
+      "dayOfWeek": [
+        "Wed"
+      ],
+      "start": [
+        16.0
+      ],
+      "duration": 1.0
+    },
+    {
+      "name": "primary Saturday",
+      "levels": [
+        "primary"
+      ],
+      "potentialTeachers": [
+        "Christine",
+        "Jasmine"
+      ],
+      "dayOfWeek": [
+        "Sat"
+      ],
+      "start": [
+        9.0
+      ],
+      "duration": 1.0
+    },
+    {
+      "name": "prep Tuesday",
+      "levels": [
+        "prep"
+      ],
+      "potentialTeachers": [
+        "Jasmine"
+      ],
+      "dayOfWeek": [
+        "Tue"
+      ],
+      "start": [
+        16.5
+      ],
+      "duration": 1.0
+    },
+    {
+      "name": "prep Saturday",
+      "levels": [
+        "prep"
+      ],
+      "potentialTeachers": [
+        "Jasmine"
+      ],
+      "dayOfWeek": [
+        "Sat"
+      ],
+      "start": [
+        9.5
+      ],
+      "duration": 1.0
+    },
+    {
+      "name": "Modern 1",
+      "levels": [
+        "prep"
+      ],
+      "dayOfWeek": [
+        "Fri"
+      ],
+      "start": [
+        17.0
+      ],
+      "duration": 1.0,
+      "potentialTeachers": [
+        "Christina",
+        "Nicole",
+        "Eva",
+        "Robbi"
+      ]
+    },
+    {
+      "name": "Ballet 1A",
+      "levels": [
+        "prep"
+      ],
+      "dayOfWeek": [
+        "Sat"
+      ],
+      "start": [
+        10.5
+      ],
+      "duration": 1.0,
+      "potentialTeachers": [
+        "Karena",
+        "Nicole",
+        "Charlotte",
+        "Fiona",
+        "Christine",
+        "Eva"
+      ]
+    },
+    {
+      "name": "Ballet 1B",
+      "levels": [
+        "prep"
+      ],
+      "dayOfWeek": [
+        "Fri"
+      ],
+      "start": [
+        16.0
+      ],
+      "duration": 1.0,
+      "potentialTeachers": [
+        "Karena",
+        "Nicole",
+        "Charlotte",
+        "Fiona",
+        "Christine",
+        "Eva"
+      ]
+    },
+    {
+      "name": "Ballet 2",
+      "levels": [
+        "pro 2"
+      ],
+      "duration": 1.25,
+      "potentialTeachers": [
+        "Karena",
+        "Nicole",
+        "Charlotte",
+        "Fiona",
+        "Christine",
+        "Eva"
+      ]
+    },
+    {
+      "name": "Ballet 2 + 3",
+      "levels": [
+        "pro 2",
+        "pro 3"
+      ],
+      "dayOfWeek": [
+        "Sat"
+      ],
+      "duration": 1.5,
+      "potentialTeachers": [
+        "Nicole",
+        "Karena",
+        "Charlotte",
+        "Fiona",
+        "Christine",
+        "Eva"
+      ]
+    },
+    {
+      "name": "Modern 2",
+      "levels": [
+        "pro 2"
+      ],
+      "duration": 1.25,
+      "potentialTeachers": [
+        "Christina",
+        "Eva",
+        "Nicole",
+        "Robbi"
+      ]
+    },
+    {
+      "name": "Ballet 3 (1 of 2)",
+      "levels": [
+        "pro 3"
+      ],
+      "duration": 1.5,
+      "potentialTeachers": [
+        "Karena",
+        "Nicole",
+        "Charlotte",
+        "Fiona",
+        "Christine",
+        "Eva"
+      ]
+    },
+    {
+      "name": "Ballet 3 (2 of 2)",
+      "levels": [
+        "pro 3"
+      ],
+      "duration": 1.5,
+      "potentialTeachers": [
+        "Nicole",
+        "Karena",
+        "Charlotte",
+        "Fiona",
+        "Christine",
+        "Eva"
+      ]
+    },
+    {
+      "name": "Modern 3",
+      "levels": [
+        "pro 3"
+      ],
+      "duration": 1.25,
+      "potentialTeachers": [
+        "Christina",
+        "Eva",
+        "Nicole",
+        "Robbi"
+      ]
+    },
+    {
+      "name": "Pre-Pointe",
+      "levels": [
+        "pro 3"
+      ],
+      "potentialTeachers": [
+        "Christine"
+      ],
+      "duration": 0.75
+    },
+    {
+      "name": "Ballet 4 (1 of 3)",
+      "levels": [
+        "pro 4"
+      ],
+      "duration": 1.5,
+      "potentialTeachers": [
+        "Karena",
+        "Fiona",
+        "Christine",
+        "Eva"
+      ]
+    },
+    {
+      "name": "Ballet 3 (2 of 3)",
+      "levels": [
+        "pro 4"
+      ],
+      "duration": 1.5,
+      "potentialTeachers": [
+        "Charlotte",
+        "Karena",
+        "Fiona",
+        "Christine",
+        "Eva"
+      ]
+    },
+    {
+      "name": "Ballet 3 (3 of 3)",
+      "levels": [
+        "pro 4"
+      ],
+      "duration": 1.5,
+      "potentialTeachers": [
+        "Charlotte",
+        "Karena",
+        "Fiona",
+        "Christine",
+        "Eva"
+      ]
+    },
+    {
+      "name": "Modern 4",
+      "levels": [
+        "pro 4"
+      ],
+      "duration": 1.5,
+      "potentialTeachers": [
+        "Christina",
+        "Nicole",
+        "Eva",
+        "Robbi"
+      ]
+    },
+    {
+      "name": "Pointe 4",
+      "levels": [
+        "pro 4"
+      ],
+      "duration": 1.0,
+      "potentialTeachers": [
+        "Charlotte",
+        "Karena"
+      ]
+    },
+    {
+      "name": "Composition",
+      "levels": [
+        "pro 4"
+      ],
+      "duration": 1.0,
+      "potentialTeachers": [
+        "Karena"
+      ]
+    },
+    {
+      "name": "Ballet 5 (1 of 3)",
+      "levels": [
+        "pro 5"
+      ],
+      "duration": 1.5,
+      "potentialTeachers": [
+        "Charlotte",
+        "Karena",
+        "Nicole",
+        "Fiona",
+        "Christine",
+        "Eva"
+      ]
+    },
+    {
+      "name": "Ballet 5 (2 of 3)",
+      "levels": [
+        "pro 5"
+      ],
+      "duration": 1.5,
+      "potentialTeachers": [
+        "Charlotte",
+        "Karena",
+        "Nicole",
+        "Fiona",
+        "Christine",
+        "Eva"
+      ]
+    },
+    {
+      "name": "Ballet 6 (3 of 3)",
+      "levels": [
+        "pro 5"
+      ],
+      "duration": 1.5,
+      "potentialTeachers": [
+        "Charlotte",
+        "Karena",
+        "Nicole",
+        "Fiona",
+        "Christine",
+        "Eva"
+      ]
+    },
+    {
+      "name": "Pointe 5 (1 of 2)",
+      "levels": [
+        "pro 5"
+      ],
+      "duration": 1.0,
+      "potentialTeachers": [
+        "Charlotte",
+        "Karena"
+      ]
+    },
+    {
+      "name": "Pointe 5 (2 of 2)",
+      "levels": [
+        "pro 5"
+      ],
+      "duration": 1.0,
+      "potentialTeachers": [
+        "Charlotte",
+        "Karena"
+      ]
+    },
+    {
+      "name": "Ballet 6 (1 of 4)",
+      "levels": [
+        "pro 6"
+      ],
+      "duration": 1.5,
+      "potentialTeachers": [
+        "Charlotte",
+        "Karena",
+        "Nicole",
+        "Fiona",
+        "Christine",
+        "Eva"
+      ]
+    },
+    {
+      "name": "Ballet 6 (2 of 4)",
+      "levels": [
+        "pro 6"
+      ],
+      "duration": 1.5,
+      "potentialTeachers": [
+        "Nicole",
+        "Charlotte",
+        "Karena",
+        "Fiona",
+        "Christine",
+        "Eva"
+      ]
+    },
+    {
+      "name": "Ballet 6 (3 of 4)",
+      "levels": [
+        "pro 6"
+      ],
+      "duration": 1.5,
+      "potentialTeachers": [
+        "Charlotte",
+        "Nicole",
+        "Karena",
+        "Fiona",
+        "Christine",
+        "Eva"
+      ]
+    },
+    {
+      "name": "Ballet 6 (4 of 4)",
+      "levels": [
+        "pro 6"
+      ],
+      "duration": 1.75,
+      "potentialTeachers": [
+        "Nicole",
+        "Charlotte",
+        "Karena",
+        "Fiona",
+        "Christine",
+        "Eva"
+      ]
+    },
+    {
+      "name": "Modern Partnering",
+      "levels": [
+        "pro 6",
+        "pro 5"
+      ],
+      "duration": 1.5
+    },
+    {
+      "name": "Modern Horton",
+      "levels": [
+        "pro 6",
+        "pro 5"
+      ],
+      "duration": 1.5,
+      "potentialTeachers": [
+        "Robbi"
+      ]
+    },
+    {
+      "name": "Pointe 6 (1 of 2)",
+      "levels": [
+        "pro 6"
+      ],
+      "duration": 1.0,
+      "potentialTeachers": [
+        "Charlotte",
+        "Karena"
+      ]
+    },
+    {
+      "name": "Pointe 6 (2 of 2)",
+      "levels": [
+        "pro 6",
+        "pro 5"
+      ],
+      "duration": 1.0,
+      "potentialTeachers": [
+        "Charlotte",
+        "Karena"
+      ]
+    }
+  ]
+}
