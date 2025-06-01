@@ -244,6 +244,9 @@ function getDomain(classToSchedule, currentAssignmentsMap) {
           }
         }
         if (!conflict) {
+          if (!room) {
+            console.log(`No room!`);
+          }
           domain.push({
             classId: classToSchedule.id, teacherName: teacher, room,
             timeSlotIndex: firstTimeSlot.index, duration: classInfo.duration
@@ -297,13 +300,15 @@ function buildSolution(assignmentsMap) {
         }
       }
     }
+    if (!roomIdFound) {
+      console.log(`No room for ${classDef.name} (ID: ${classId}`)
+    }
 
     if (teacherNameFound && startTimeSlotIndexFound !== -1) {
       currentSolution.push({
         classId: classId,
         className: classDef.name,
         teacherName: teacherNameFound,
-        roomId: roomIdFound, // This will be the room name/ID string
         roomName: roomIdFound, // Using roomId as roomName
         timeSlotIndex: startTimeSlotIndexFound,
         timeSlotLabel: allTimeSlots[startTimeSlotIndexFound].label,
