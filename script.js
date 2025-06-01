@@ -22,6 +22,15 @@ function generateId() {
   return crypto.randomUUID();
 }
 
+
+class TimeSlot {
+  constructor(day, startHour) {
+    this.day = day;
+    this.startHour = startHour;
+    this.label = makeTimeSlotName(day, startHour);
+  }
+}
+
 /** 
  * Constructs label names like 'Mon 16:45'
  * Day is a three letter string, and startHour is a number.  16.75 = 16:45.
@@ -36,11 +45,7 @@ function makeTimeSlotName(day, startHour) {
 function makeTimeSlotsForDay(day, fromHour, toHour) {
   const timeSlots = [];
   for (let hour = fromHour; hour <= toHour; hour += 0.25) {
-    timeSlots.push({
-      day: day,
-      startHour: hour,
-      label: makeTimeSlotName(day, hour)
-    });
+    timeSlots.push(new TimeSlot(day, startHour));
   }
   return timeSlots;
 }
@@ -101,6 +106,12 @@ async function loadClassInfo() {
       levels: item.levels || allLevels,
       duration: item.duration || 1.0,
     }));
+    for (let i = 0; i < definedClasses.length; i++) {
+      if (definedClasses.start) {
+        definedClasses[i].minStartTime = definedClasses[i].start;
+        definedClasses[i].maxEndTime = definedClasses[i].start + definedClasses[i].duration;
+      }
+    }
 
     console.log("Loaded Data:", { allLevels, allTeachers, allRooms, definedClasses });
 
@@ -187,17 +198,29 @@ function getDomain(classToSchedule, currentAssignmentsMap) {
   const domain = []; // Stores { classId, teacherName, roomId, timeSlotIndex }
   const classInfo = definedClasses.find(c => c.id === classToSchedule.id);
 
+  const allowedDays = classInfo.dayOfWeek ? new Set(classInfo.dayOfWeek): null;
+
   for (const teacher of classInfo.potentialTeachers) {
     for (const room of allRooms) { // room is a string
       const numSlots = Math.round(classInfo.duration * 4);
       for (let i = 0; i < allTimeSlots.length - numSlots + 1; i++) {
         // timeSlot is {id, day, startHour, label}
         const firstTimeSlot = allTimeSlots[i];
+        if (allowedDays && !allowedDays.has(firstTimeSlot.day)) {
+          continue;
+        }
+        if (classInfo.minStartTime && firstTimeSlot.startHour > classInfo.minStartTime) {
+          continue;
+        }
+        if (classInfo.maxEndTime && 
+          firstTimeSlot.startHour  + classInfo.duration > classInfo.maxEndTime) {
+          continue;
+        }
         let conflict = false;
         for (let j = 0; j < numSlots; j++) {
           const timeSlot = allTimeSlots[i + j];
           // Make sure this timeSlot is the same day as firstTimeSlot.
-          if (firstTimeSlot.label.slice(0, 3) !== timeSlot.label.slice(0, 3)) {
+          if (firstTimeSlot.day !== timeSlot.day) {
             break;
           }
           // 1. Teacher conflict
@@ -317,8 +340,8 @@ function domainQuality(domain, assignmentsMap) {
   const previousTimeSlotIndex = firstTimeSlotIndex - 1;
   const timeSlot = allTimeSlots[firstTimeSlotIndex];
   const previousTimeSlot = allTimeSlots[previousTimeSlotIndex];
-  const previousDay = previousTimeSlot.label.slice(0, 3);
-  const currentDay = allTimeSlots[firstTimeSlotIndex].label.slice(0, 3);
+  const previousDay = previousTimeSlot.day;
+  const currentDay = allTimeSlots[firstTimeSlotIndex].day;
   if (previousDay != currentDay) return 0;
 
   const classInfo = definedClasses.find(c => c.id === domain.classId);

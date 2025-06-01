@@ -25,7 +25,7 @@
   ],
   "definedClasses": [
     {
-      "name": "creative Thursday",
+      "name": "Creative Thursday",
       "levels": [
         "creative"
       ],
@@ -35,13 +35,12 @@
       "dayOfWeek": [
         "Thu"
       ],
-      "start": [
-        15.5
-      ],
+      "minStartTime": 15.5,
+      "maxEndTime": 16.5,
       "duration": 0.75
     },
     {
-      "name": "creative Saturday",
+      "name": "Creative Saturday",
       "levels": [
         "creative"
       ],
