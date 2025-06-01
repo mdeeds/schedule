@@ -1,11 +1,7 @@
 {
   "rooms": [
-    {
-      "name": "Studio 1"
-    },
-    {
-      "name": "Studio 2"
-    }
+    "Studio 1",
+    "Studio 2"
   ],
   "timeSlots": [
     {

@@ -304,7 +304,58 @@ function logEvery10Seconds(message) {
   }
 }
 
+
+// Returns 0 if this domain is at the beginning of the day.
+// Returns 0 if this domain is immediately after something in the same room at the same level
+// Returns 1 if this domain is immediately after something else at the same level (in a different room)
+// Returns 2 if this domain is immediately after something else in the same room
+// Returns 3 otherwise.
+function domainQuality(domain, assignmentsMap) {
+  if (domain.timeSlotIndex === 0) return 0;
+  // Check the slot immediately preceding the start of this domain
+  const firstTimeSlotIndex = domain.timeSlotIndex;
+  const previousTimeSlotIndex = firstTimeSlotIndex - 1;
+  const timeSlot = allTimeSlots[firstTimeSlotIndex];
+  const previousTimeSlot = allTimeSlots[previousTimeSlotIndex];
+  const previousDay = previousTimeSlot.label.slice(0, 3);
+  const currentDay = allTimeSlots[firstTimeSlotIndex].label.slice(0, 3);
+  if (previousDay != currentDay) return 0;
+
+  const classInfo = definedClasses.find(c => c.id === domain.classId);
+  const previousAssignmentRoom = assignmentsMap.room[domain.room] ? assignmentsMap.room[domain.room][previousTimeSlotIndex] : null;
+  const assignmentRoom = assignmentsMap.room[domain.room] ? assignmentsMap.room[domain.room][firstTimeSlotIndex] : null;
+  // TODO: Figure out how to match levels.  We want to match levels if any of the levels at the two times match.
+
+  const isSameRoom = previousAssignmentRoom === assignmentRoom; // Assuming room assignment matches teacher assignment for the same class
+  // const isSameLevel = previousAssignmentLevel === assignmentLevel; // Assuming level assignment matches teacher assignment for the same class
+  const isSameLevel = true;
+
+  if (isSameRoom && isSameLevel) {
+    return 0; // Immediately after something in the same room at the same level
+  } else if (isSameLevel) {
+    return 1; // Immediately after something else at the same level (in a different room)
+  } else if (isSameRoom) {
+    return 2; // Immediately after something else in the same room
+  }
+
+  return 3; // Otherwise
+}
+
+// Sort domains so that options the immediately follow another class in the same room and same level are first.
+function improveDomainOrder(smallestDomain, assignmentsMap) {
+  smallestDomain.sort((a, b) => {
+    const aQuality = domainQuality(a, assignmentsMap);
+    const bQuality = domainQuality(b, assignmentsMap);
+    return aQuality - bQuality;
+  });
+}
+
+let smallestRemaining = Infinity;
 function solveRecursive(unscheduledClasses, assignmentsMap) {
+  if (unscheduledClasses.length < smallestRemaining) {
+    smallestRemaining = unscheduledClasses.length;
+    console.log(`Remaining classes to schedule: ${smallestRemaining}}`);
+  }
   const MAX_SOLUTIONS = parseInt(maxSolutionsEl.value) || MAX_SOLUTIONS_DEFAULT;
   if (solutions.length >= MAX_SOLUTIONS) {
     return true; // Stop if max solutions found
@@ -348,6 +399,15 @@ function solveRecursive(unscheduledClasses, assignmentsMap) {
   }
 
   const nextUnscheduledClasses = unscheduledClasses.filter(c => c.id !== bestClassToSchedule.id);
+
+  // Shuffle the domain to explore different possibilities
+  // Fisher-Yates (aka Knuth) Shuffle
+  for (let i = smallestDomain.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [smallestDomain[i], smallestDomain[j]] = [smallestDomain[j], smallestDomain[i]]; // Swap elements
+  }
+  // Sort domains so that options the immediately follow another class in the same room and same level are first.
+  improveDomainOrder(smallestDomain, assignmentsMap);
 
   for (const assignment of smallestDomain) { // assignment = { classId, teacherName, roomId, timeSlotIndex }
     // Apply assignment
