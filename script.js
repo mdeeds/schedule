@@ -45,7 +45,7 @@ function makeTimeSlotName(day, startHour) {
 function makeTimeSlotsForDay(day, fromHour, toHour) {
   const timeSlots = [];
   for (let hour = fromHour; hour <= toHour; hour += 0.25) {
-    timeSlots.push(new TimeSlot(day, startHour));
+    timeSlots.push(new TimeSlot(day, hour));
   }
   return timeSlots;
 }
@@ -260,7 +260,7 @@ function getDomain(classToSchedule, currentAssignmentsMap) {
   return domain;
 }
 
-function buildSolution() {
+function buildSolution(assignmentsMap) {
   const currentSolution = [];
   // Iterate through all classes that were *supposed* to be scheduled.
   // The global `definedClasses` holds the original list of all classes.
@@ -388,7 +388,7 @@ function solveRecursive(unscheduledClasses, assignmentsMap) {
 
   if (unscheduledClasses.length === 0) {
     // All classes scheduled, found a solution
-    const currentSolution = buildSolution();
+    const currentSolution = buildSolution(assignmentsMap);
     solutions.push(currentSolution);
     console.log('Found a solution!');
     return solutions.length >= MAX_SOLUTIONS; // Stop if max solutions found
