@@ -3,6 +3,7 @@ let definedClasses = []; // { id, name, duration, levels: [], potentialTeachers:
 let allTimeSlots = []; // { id, day, startHour, label }
 let allLevels = []; // string
 let allTeachers = []; // string
+let allrooms = [];  // string
 
 let solutions = []; // Array of solution objects, each solution is an array of assignment objects { classId, teacherName, roomId, timeSlotIndex }
 const MAX_SOLUTIONS_DEFAULT = 10;
@@ -198,7 +199,7 @@ function getDomain(classToSchedule, currentAssignmentsMap) {
   const domain = []; // Stores { classId, teacherName, roomId, timeSlotIndex }
   const classInfo = definedClasses.find(c => c.id === classToSchedule.id);
 
-  const allowedDays = classInfo.dayOfWeek ? new Set(classInfo.dayOfWeek): null;
+  const allowedDays = classInfo.dayOfWeek ? new Set(classInfo.dayOfWeek) : null;
 
   for (const teacher of classInfo.potentialTeachers) {
     for (const room of allRooms) { // room is a string
@@ -212,8 +213,8 @@ function getDomain(classToSchedule, currentAssignmentsMap) {
         if (classInfo.minStartTime && firstTimeSlot.startHour > classInfo.minStartTime) {
           continue;
         }
-        if (classInfo.maxEndTime && 
-          firstTimeSlot.startHour  + classInfo.duration > classInfo.maxEndTime) {
+        if (classInfo.maxEndTime &&
+          firstTimeSlot.startHour + classInfo.duration > classInfo.maxEndTime) {
           continue;
         }
         let conflict = false;
@@ -263,61 +264,44 @@ function getDomain(classToSchedule, currentAssignmentsMap) {
   return domain;
 }
 
+function findTeacherName(assignmentsMap, timeSlotIndex) {
+  for (const teacherName in assignmentsMap.teacher) {
+    if (assignmentsMap.teacher[teacherName][timeSlotIndex]) {
+      return teacherName;
+    }
+  }
+  return null;
+}
+
+function findClassInfo(classId) {
+  return definedClasses.find(c => c.id === classId);
+}
+
 function buildSolution(assignmentsMap) {
   const currentSolution = [];
-  // Iterate through all classes that were *supposed* to be scheduled.
-  // The global `definedClasses` holds the original list of all classes.
-  for (const classDef of definedClasses) {
-    const classId = classDef.id;
-    let teacherNameFound = null;
-    let startTimeSlotIndexFound = -1;
-    let roomIdFound = null;
-
-    // Find this class's assignment in the assignmentsMap.
-    // We need its teacher, room, and *start* timeSlotIndex.
-    teacherSearchLoop:
-    for (const teacherName in assignmentsMap.teacher) {
-      for (const slotKey in assignmentsMap.teacher[teacherName]) {
-        if (assignmentsMap.teacher[teacherName][slotKey] === classId) {
-          const currentSlotIndex = parseInt(slotKey);
-          // Check if this is the start slot for this class taught by this teacher
-          const isStartSlot = (currentSlotIndex === 0) ||
-            !assignmentsMap.teacher[teacherName][currentSlotIndex - 1] ||
-            (assignmentsMap.teacher[teacherName][currentSlotIndex - 1] !== classId);
-
-          if (isStartSlot) {
-            teacherNameFound = teacherName;
-            startTimeSlotIndexFound = currentSlotIndex;
-            // Find the room for this classId at its start timeSlotIndex
-            for (const roomName in assignmentsMap.room) {
-              if (assignmentsMap.room[roomName][startTimeSlotIndexFound] === classId) {
-                roomIdFound = roomName;
-                break; // Found room
-              }
-            }
-            break teacherSearchLoop; // Found all details for this class
-          }
+  let lastClassId = "";
+  for (const [roomFound, roomSchedule] of Object.entries(assignmentsMap.room)) {
+    for (let slotIndex = 0; slotIndex < roomSchedule.length; slotIndex++) {
+      const classId = roomSchedule[slotIndex];
+      if (classId === lastClassId) {
+        continue;
+      }
+      lastClassId = classId;
+      if (classId) {
+        const teacherName = findTeacherName(assignmentsMap, slotIndex);
+        const classInfo = findClassInfo(classId);
+        if (teacherName && classInfo) {
+          currentSolution.push({
+            classId: classId,
+            className: classInfo.name,
+            teacherName,
+            roomName: roomFound, // Using roomId as roomName
+            timeSlotIndex: slotIndex,
+            timeSlotLabel: allTimeSlots[slotIndex].label,
+            duration: classInfo.duration // Useful for verifying/displaying
+          });
         }
       }
-    }
-    if (!roomIdFound) {
-      console.log(`No room for ${classDef.name} (ID: ${classId}`)
-    }
-
-    if (teacherNameFound && startTimeSlotIndexFound !== -1) {
-      currentSolution.push({
-        classId: classId,
-        className: classDef.name,
-        teacherName: teacherNameFound,
-        roomName: roomIdFound, // Using roomId as roomName
-        timeSlotIndex: startTimeSlotIndexFound,
-        timeSlotLabel: allTimeSlots[startTimeSlotIndexFound].label,
-        duration: classDef.duration // Useful for verifying/displaying
-      });
-    } else {
-      // This indicates a discrepancy if unscheduledClasses.length was 0.
-      // It means a class from the original set was not found in the assignmentsMap.
-      console.warn(`Solution Inconsistency: Class ${classDef.name} (ID: ${classId}) was expected but not found in the final assignmentsMap for a complete solution.`);
     }
   }
   return currentSolution;
@@ -479,44 +463,10 @@ function renderSolutions() {
     return;
   }
 
-  solutions.forEach((solution, index) => {
-    const solutionCard = document.createElement('div');
-    solutionCard.className = 'card';
-
-    const title = document.createElement('h3');
-    title.className = 'text-lg font-semibold text-indigo-600 mb-3';
-    title.textContent = `Schedule Option ${index + 1}`;
-    solutionCard.appendChild(title);
-
-    const table = document.createElement('table');
-    table.className = 'min-w-full divide-y divide-gray-200 text-sm';
-    const thead = document.createElement('thead');
-    thead.className = 'bg-gray-50';
-    thead.innerHTML = `
-                    <tr>
-                        <th class="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">Class</th>
-                        <th class="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">Teacher</th>
-                        <th class="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">Room</th>
-                        <th class="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">Time</th>
-                    </tr>
-                `;
-    table.appendChild(thead);
-
-    const tbody = document.createElement('tbody');
-    tbody.className = 'bg-white divide-y divide-gray-200';
-    solution.forEach(item => {
-      const row = tbody.insertRow();
-      row.innerHTML = `
-                        <td class="px-3 py-2 whitespace-nowrap">${item.className}</td>
-                        <td class="px-3 py-2 whitespace-nowrap">${item.teacherName}</td>
-                        <td class="px-3 py-2 whitespace-nowrap">${item.roomName}</td>
-                        <td class="px-3 py-2 whitespace-nowrap">${item.timeSlotLabel}</td>
-                    `;
-    });
-    table.appendChild(tbody);
-    solutionCard.appendChild(table);
-    solutionsDisplayEl.appendChild(solutionCard);
-  });
+  for (const solution of solutions) {
+    renderSolution(solution);
+    break;
+  };
 
   // Add a button to view the first solution in the table format
   const viewTableBtn = document.createElement('button');

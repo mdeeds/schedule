@@ -27,3 +27,20 @@
      transform: rotate(360deg);
    }
  }
+
+ .room {
+   border: 1px solid #ccc;
+   padding: 10px;
+   /* Allow columns to take available space */
+   flex-grow: 1;
+   border-right: 1px solid #ccc;
+   /* For absolute positioning of classes */
+   position: relative;
+ }
+
+ .scheduled-class {
+   border: 1px solid #eee;
+   background-color: #e0e7ff;
+   padding: 2px;
+   box-sizing: border-box;
+ }
