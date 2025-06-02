@@ -207,6 +207,11 @@ function getDomain(classToSchedule, currentAssignmentsMap) {
       for (let i = 0; i < allTimeSlots.length - numSlots + 1; i++) {
         // timeSlot is {id, day, startHour, label}
         const firstTimeSlot = allTimeSlots[i];
+        const lastTimeSlot = allTimeSlots[i + numSlots - 1];
+        if (lastTimeSlot.day !== firstTimeSlot.day) {
+          // Classes can't go to the next day!
+          continue;
+        }
         if (allowedDays && !allowedDays.has(firstTimeSlot.day)) {
           continue;
         }

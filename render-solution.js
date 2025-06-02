@@ -72,7 +72,7 @@ function renderSolutionAsHtmlElements(solution) {
   for (const timeSlot of allTimeSlots) {
     const timeSlotDiv = document.createElement('div');
     timeSlotDiv.innerText = timeSlot.label;
-    timeSlotDiv.style.height = `${PIXELS_PER_QUARTER_HOUR}px`;
+    timeSlotDiv.style.height = `${PIXELS_PER_QUARTER_HOUR - 1}px`;
     timeSlotDiv.style.fontSize = '0.75em';
     timeSlotDiv.style.borderBottom = '1px dotted #eee';
     timeSlotColumn.appendChild(timeSlotDiv);
@@ -102,7 +102,7 @@ function renderSolutionAsHtmlElements(solution) {
 
       const classDiv = document.createElement('div');
       classDiv.classList.add('scheduled-class');
-      classDiv.innerText = `${scheduledClass.className} (${scheduledClass.teacherName})`;
+      classDiv.innerText = `${scheduledClass.timeSlotLabel} ${scheduledClass.className} (${scheduledClass.teacherName})`;
       classDiv.style.height = `${numSlots * PIXELS_PER_QUARTER_HOUR}px`;
       classDiv.style.border = '1px solid #333';
       roomColumn.appendChild(classDiv);
