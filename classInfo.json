@@ -51,9 +51,7 @@
         "Sat"
       ],
       "duration": 0.75,
-      "start": [
-        8.75
-      ]
+      "start": 8.75
     },
     {
       "name": "primary Wednesday",
@@ -67,9 +65,7 @@
       "dayOfWeek": [
         "Wed"
       ],
-      "start": [
-        16.0
-      ],
+      "start": 16.0,
       "duration": 1.0
     },
     {
@@ -84,9 +80,7 @@
       "dayOfWeek": [
         "Sat"
       ],
-      "start": [
-        9.0
-      ],
+      "start": 9.0,
       "duration": 1.0
     },
     {
@@ -100,9 +94,7 @@
       "dayOfWeek": [
         "Tue"
       ],
-      "start": [
-        16.5
-      ],
+      "start": 16.5,
       "duration": 1.0
     },
     {
@@ -116,9 +108,7 @@
       "dayOfWeek": [
         "Sat"
       ],
-      "start": [
-        9.5
-      ],
+      "start": 9.5,
       "duration": 1.0
     },
     {
@@ -129,9 +119,7 @@
       "dayOfWeek": [
         "Fri"
       ],
-      "start": [
-        17.0
-      ],
+      "start": 17.0,
       "duration": 1.0,
       "potentialTeachers": [
         "Christina",
@@ -148,9 +136,7 @@
       "dayOfWeek": [
         "Sat"
       ],
-      "start": [
-        10.5
-      ],
+      "start": 10.5,
       "duration": 1.0,
       "potentialTeachers": [
         "Karena",
@@ -169,9 +155,7 @@
       "dayOfWeek": [
         "Fri"
       ],
-      "start": [
-        16.0
-      ],
+      "start": 16.0,
       "duration": 1.0,
       "potentialTeachers": [
         "Karena",

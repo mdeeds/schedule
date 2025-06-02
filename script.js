@@ -6,11 +6,9 @@ let allTeachers = []; // string
 let allrooms = [];  // string
 
 let solutions = []; // Array of solution objects, each solution is an array of assignment objects { classId, teacherName, roomId, timeSlotIndex }
-const MAX_SOLUTIONS_DEFAULT = 10;
 
 const solverControlsSectionEl = document.getElementById('solver-controls-section');
 const solveBtn = document.getElementById('solveBtn');
-const maxSolutionsEl = document.getElementById('maxSolutions');
 
 const solutionsDisplayEl = document.getElementById('solutionsDisplay');
 const scheduleTableEl = document.getElementById('scheduleTable');
@@ -108,9 +106,10 @@ async function loadClassInfo() {
       duration: item.duration || 1.0,
     }));
     for (let i = 0; i < definedClasses.length; i++) {
-      if (definedClasses.start) {
+      if (definedClasses[i].start) {
         definedClasses[i].minStartTime = definedClasses[i].start;
         definedClasses[i].maxEndTime = definedClasses[i].start + definedClasses[i].duration;
+        console.log(JSON.stringify(definedClasses[i], null, 2));
       }
     }
 
@@ -215,7 +214,7 @@ function getDomain(classToSchedule, currentAssignmentsMap) {
         if (allowedDays && !allowedDays.has(firstTimeSlot.day)) {
           continue;
         }
-        if (classInfo.minStartTime && firstTimeSlot.startHour > classInfo.minStartTime) {
+        if (classInfo.minStartTime && firstTimeSlot.startHour < classInfo.minStartTime) {
           continue;
         }
         if (classInfo.maxEndTime &&
@@ -225,10 +224,6 @@ function getDomain(classToSchedule, currentAssignmentsMap) {
         let conflict = false;
         for (let j = 0; j < numSlots; j++) {
           const timeSlot = allTimeSlots[i + j];
-          // Make sure this timeSlot is the same day as firstTimeSlot.
-          if (firstTimeSlot.day !== timeSlot.day) {
-            break;
-          }
           // 1. Teacher conflict
           if (currentAssignmentsMap.teacher[teacher] && currentAssignmentsMap.teacher[teacher][timeSlot.index]) {
             conflict = true;
@@ -250,9 +245,6 @@ function getDomain(classToSchedule, currentAssignmentsMap) {
           }
         }
         if (!conflict) {
-          if (!room) {
-            console.log(`No room!`);
-          }
           domain.push({
             classId: classToSchedule.id, teacherName: teacher, room,
             timeSlotIndex: firstTimeSlot.index, duration: classInfo.duration
@@ -363,7 +355,7 @@ function improveDomainOrder(smallestDomain, assignmentsMap) {
   smallestDomain.sort((a, b) => {
     const aQuality = domainQuality(a, assignmentsMap);
     const bQuality = domainQuality(b, assignmentsMap);
-    return aQuality - bQuality;
+    return bQuality - aQuality;
   });
 }
 
@@ -373,10 +365,6 @@ function solveRecursive(unscheduledClasses, assignmentsMap) {
     smallestRemaining = unscheduledClasses.length;
     console.log(`Remaining classes to schedule: ${smallestRemaining}}`);
   }
-  const MAX_SOLUTIONS = parseInt(maxSolutionsEl.value) || MAX_SOLUTIONS_DEFAULT;
-  if (solutions.length >= MAX_SOLUTIONS) {
-    return true; // Stop if max solutions found
-  }
 
   // logEvery10Seconds(`Unscheduled: ${unscheduledClasses.length}`);
 
@@ -385,7 +373,7 @@ function solveRecursive(unscheduledClasses, assignmentsMap) {
     const currentSolution = buildSolution(assignmentsMap);
     solutions.push(currentSolution);
     console.log('Found a solution!');
-    return solutions.length >= MAX_SOLUTIONS; // Stop if max solutions found
+    return true;
   }
 
   // MRV Heuristic: Select the class with the fewest valid assignments (smallest domain)
@@ -417,12 +405,12 @@ function solveRecursive(unscheduledClasses, assignmentsMap) {
 
   const nextUnscheduledClasses = unscheduledClasses.filter(c => c.id !== bestClassToSchedule.id);
 
-  // Shuffle the domain to explore different possibilities
-  // Fisher-Yates (aka Knuth) Shuffle
-  for (let i = smallestDomain.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [smallestDomain[i], smallestDomain[j]] = [smallestDomain[j], smallestDomain[i]]; // Swap elements
-  }
+  // // Shuffle the domain to explore different possibilities
+  // // Fisher-Yates (aka Knuth) Shuffle
+  // for (let i = smallestDomain.length - 1; i > 0; i--) {
+  //   const j = Math.floor(Math.random() * (i + 1));
+  //   [smallestDomain[i], smallestDomain[j]] = [smallestDomain[j], smallestDomain[i]]; // Swap elements
+  // }
   // Sort domains so that options the immediately follow another class in the same room and same level are first.
   improveDomainOrder(smallestDomain, assignmentsMap);
 
@@ -451,14 +439,12 @@ function solveRecursive(unscheduledClasses, assignmentsMap) {
       assignmentsMap.teacher[assignment.teacherName][timeSlotIndex] = null;
       assignmentsMap.room[assignment.room][timeSlotIndex] = null;
       for (const levelId of classInfo.levels) {
-        if (assignmentsMap.level[levelId]) { // Check if levelId entry exists before deleting
-          assignmentsMap.level[levelId][timeSlotIndex] = null;
-        }
+        assignmentsMap.level[levelId][timeSlotIndex] = null;
       }
     }
   }
   // logEvery10Seconds(`Backtracking`);
-  return false; // Exhausted this branch without reaching max solutions
+  return false; // Exhausted this branch without reaching a solution
 }
 
 function renderSolutions() {
