@@ -16,6 +16,18 @@ const loadingModalEl = document.getElementById('loadingModal');
 
 const DAYS_OF_WEEK = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
+const colorMap = new Map([
+  ["creative", "pink"],
+  ["primary", "white"],
+  ["preparatory", "orchid"],
+  ["level 1", "lightskyblue"],
+  ["level 2", "maroon"], // "burgundy"],
+  ["level 3", "purple"], // "aubergine"],
+  ["level 4", "darkmagenta"], // "royal blue"],
+  ["level 5", "#888"], // "black"],
+  ["level 6", "#666"]
+]);
+
 // --- UTILITY FUNCTIONS ---
 function generateId() {
   return crypto.randomUUID();
@@ -110,6 +122,11 @@ async function loadClassInfo() {
         definedClasses[i].minStartTime = definedClasses[i].start;
         definedClasses[i].maxEndTime = definedClasses[i].start + definedClasses[i].duration;
         console.log(JSON.stringify(definedClasses[i], null, 2));
+      }
+      for (const level of definedClasses[i].levels) {
+        if (colorMap.has(level)) {
+          definedClasses[i].color = colorMap.get(level);
+        }
       }
     }
 
@@ -247,7 +264,8 @@ function getDomain(classToSchedule, currentAssignmentsMap) {
         if (!conflict) {
           domain.push({
             classId: classToSchedule.id, teacherName: teacher, room,
-            timeSlotIndex: firstTimeSlot.index, duration: classInfo.duration
+            timeSlotIndex: firstTimeSlot.index, duration: classInfo.duration,
+            className: classInfo.name, timeSlotLabel: firstTimeSlot.label
           });
         }
       }
@@ -261,9 +279,9 @@ function getDomain(classToSchedule, currentAssignmentsMap) {
   return domain;
 }
 
-function findTeacherName(assignmentsMap, timeSlotIndex) {
+function findTeacherName(assignmentsMap, timeSlotIndex, classId) {
   for (const teacherName in assignmentsMap.teacher) {
-    if (assignmentsMap.teacher[teacherName][timeSlotIndex]) {
+    if (assignmentsMap.teacher[teacherName][timeSlotIndex] === classId) {
       return teacherName;
     }
   }
@@ -285,7 +303,7 @@ function buildSolution(assignmentsMap) {
       }
       lastClassId = classId;
       if (classId) {
-        const teacherName = findTeacherName(assignmentsMap, slotIndex);
+        const teacherName = findTeacherName(assignmentsMap, slotIndex, classId);
         const classInfo = findClassInfo(classId);
         if (teacherName && classInfo) {
           currentSolution.push({
@@ -295,6 +313,7 @@ function buildSolution(assignmentsMap) {
             roomName: roomFound, // Using roomId as roomName
             timeSlotIndex: slotIndex,
             timeSlotLabel: allTimeSlots[slotIndex].label,
+            color: classInfo.color,
             duration: classInfo.duration // Useful for verifying/displaying
           });
         }
@@ -310,6 +329,14 @@ function logEvery10Seconds(message) {
   if (nowTime - lastLogTime > 10000) {
     console.log(message);
     lastLogTime = nowTime;
+  }
+}
+
+let numLogged = 0;
+function logFirstN(message) {
+  if (numLogged < 100) {
+    console.log(message);
+    numLogged++;
   }
 }
 
@@ -359,11 +386,36 @@ function improveDomainOrder(smallestDomain, assignmentsMap) {
   });
 }
 
+function checkBroadConstraints(assignmentsMap) {
+  // Check level constraints: A level cannot have classes on more than 4 different days.
+  const levelDayCount = {}; // { levelId: Set<day> }
+  for (const levelId of allLevels) {
+    levelDayCount[levelId] = new Set();
+  }
+
+  for (const [levelId, levelSchedule] of Object.entries(assignmentsMap.level)) {
+    for (let slotIndex = 0; slotIndex < levelSchedule.length; slotIndex++) {
+      const day = allTimeSlots[slotIndex].day;
+      levelDayCount[levelId].add(day);
+    }
+  }
+  for (const levelId in levelDayCount) {
+    if (levelDayCount[levelId].size > 5) {
+      // console.log(`Constraint violation: Level ${levelId} has classes on more than 4 days.`);
+      return false;
+    }
+  }
+
+  // Add other broad constraints here if needed
+  // For example, check if any teacher is scheduled for more than X consecutive hours, etc.
+  return true; // All broad constraints passed
+}
+
 let smallestRemaining = Infinity;
 function solveRecursive(unscheduledClasses, assignmentsMap) {
   if (unscheduledClasses.length < smallestRemaining) {
     smallestRemaining = unscheduledClasses.length;
-    console.log(`Remaining classes to schedule: ${smallestRemaining}}`);
+    // console.log(`Remaining classes to schedule: ${smallestRemaining}`);
   }
 
   // logEvery10Seconds(`Unscheduled: ${unscheduledClasses.length}`);
@@ -429,8 +481,15 @@ function solveRecursive(unscheduledClasses, assignmentsMap) {
       }
     }
 
-    if (solveRecursive(nextUnscheduledClasses, assignmentsMap)) {
-      return true; // Propagate stop signal
+    if (assignment.timeSlotIndex === 0) {
+      logFirstN(`Unscheduled: ${nextUnscheduledClasses.length} Assignment:
+${JSON.stringify(assignment, null, 2)}`);
+    }
+
+    if (checkBroadConstraints(assignmentsMap)) {
+      if (solveRecursive(nextUnscheduledClasses, assignmentsMap)) {
+        return true; // Propagate stop signal
+      }
     }
 
     for (let i = 0; i < numSlots; ++i) {

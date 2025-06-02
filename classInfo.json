@@ -25,7 +25,7 @@
   ],
   "definedClasses": [
     {
-      "name": "Creative Thursday",
+      "name": "Creative",
       "levels": [
         "creative"
       ],
@@ -35,12 +35,11 @@
       "dayOfWeek": [
         "Thu"
       ],
-      "minStartTime": 15.5,
-      "maxEndTime": 16.5,
+      "start": 15.5,
       "duration": 0.75
     },
     {
-      "name": "Creative Saturday",
+      "name": "Creative",
       "levels": [
         "creative"
       ],
@@ -50,11 +49,11 @@
       "dayOfWeek": [
         "Sat"
       ],
-      "duration": 0.75,
-      "start": 8.75
+      "start": 8.75,
+      "duration": 0.75
     },
     {
-      "name": "primary Wednesday",
+      "name": "Primary",
       "levels": [
         "primary"
       ],
@@ -69,7 +68,7 @@
       "duration": 1.0
     },
     {
-      "name": "primary Saturday",
+      "name": "Primary",
       "levels": [
         "primary"
       ],
@@ -84,9 +83,9 @@
       "duration": 1.0
     },
     {
-      "name": "prep Tuesday",
+      "name": "Preparatory",
       "levels": [
-        "prep"
+        "preparatory"
       ],
       "potentialTeachers": [
         "Jasmine"
@@ -98,9 +97,9 @@
       "duration": 1.0
     },
     {
-      "name": "prep Saturday",
+      "name": "Preparatory",
       "levels": [
-        "prep"
+        "preparatory"
       ],
       "potentialTeachers": [
         "Jasmine"
@@ -114,12 +113,11 @@
     {
       "name": "Modern 1",
       "levels": [
-        "prep"
+        "level 1"
       ],
       "dayOfWeek": [
         "Fri"
       ],
-      "start": 17.0,
       "duration": 1.0,
       "potentialTeachers": [
         "Christina",
@@ -131,12 +129,11 @@
     {
       "name": "Ballet 1A",
       "levels": [
-        "prep"
+        "level 1"
       ],
       "dayOfWeek": [
         "Sat"
       ],
-      "start": 10.5,
       "duration": 1.0,
       "potentialTeachers": [
         "Karena",
@@ -150,12 +147,11 @@
     {
       "name": "Ballet 1B",
       "levels": [
-        "prep"
+        "level 1"
       ],
       "dayOfWeek": [
         "Fri"
       ],
-      "start": 16.0,
       "duration": 1.0,
       "potentialTeachers": [
         "Karena",
@@ -169,7 +165,7 @@
     {
       "name": "Ballet 2",
       "levels": [
-        "pro 2"
+        "level 2"
       ],
       "duration": 1.25,
       "potentialTeachers": [
@@ -184,8 +180,8 @@
     {
       "name": "Ballet 2 + 3",
       "levels": [
-        "pro 2",
-        "pro 3"
+        "level 2",
+        "level 3"
       ],
       "dayOfWeek": [
         "Sat"
@@ -203,7 +199,7 @@
     {
       "name": "Modern 2",
       "levels": [
-        "pro 2"
+        "level 2"
       ],
       "duration": 1.25,
       "potentialTeachers": [
@@ -216,7 +212,7 @@
     {
       "name": "Ballet 3 (1 of 2)",
       "levels": [
-        "pro 3"
+        "level 3"
       ],
       "duration": 1.5,
       "potentialTeachers": [
@@ -231,7 +227,7 @@
     {
       "name": "Ballet 3 (2 of 2)",
       "levels": [
-        "pro 3"
+        "level 3"
       ],
       "duration": 1.5,
       "potentialTeachers": [
@@ -246,7 +242,7 @@
     {
       "name": "Modern 3",
       "levels": [
-        "pro 3"
+        "level 3"
       ],
       "duration": 1.25,
       "potentialTeachers": [
@@ -259,7 +255,7 @@
     {
       "name": "Pre-Pointe",
       "levels": [
-        "pro 3"
+        "level 3"
       ],
       "potentialTeachers": [
         "Christine"
@@ -269,7 +265,7 @@
     {
       "name": "Ballet 4 (1 of 3)",
       "levels": [
-        "pro 4"
+        "level 4"
       ],
       "duration": 1.5,
       "potentialTeachers": [
@@ -282,7 +278,7 @@
     {
       "name": "Ballet 3 (2 of 3)",
       "levels": [
-        "pro 4"
+        "level 4"
       ],
       "duration": 1.5,
       "potentialTeachers": [
@@ -296,7 +292,7 @@
     {
       "name": "Ballet 3 (3 of 3)",
       "levels": [
-        "pro 4"
+        "level 4"
       ],
       "duration": 1.5,
       "potentialTeachers": [
@@ -310,7 +306,7 @@
     {
       "name": "Modern 4",
       "levels": [
-        "pro 4"
+        "level 4"
       ],
       "duration": 1.5,
       "potentialTeachers": [
@@ -323,7 +319,7 @@
     {
       "name": "Pointe 4",
       "levels": [
-        "pro 4"
+        "level 4"
       ],
       "duration": 1.0,
       "potentialTeachers": [
@@ -334,7 +330,7 @@
     {
       "name": "Composition",
       "levels": [
-        "pro 4"
+        "level 4"
       ],
       "duration": 1.0,
       "potentialTeachers": [
@@ -344,7 +340,7 @@
     {
       "name": "Ballet 5 (1 of 3)",
       "levels": [
-        "pro 5"
+        "level 5"
       ],
       "duration": 1.5,
       "potentialTeachers": [
@@ -359,7 +355,7 @@
     {
       "name": "Ballet 5 (2 of 3)",
       "levels": [
-        "pro 5"
+        "level 5"
       ],
       "duration": 1.5,
       "potentialTeachers": [
@@ -372,9 +368,9 @@
       ]
     },
     {
-      "name": "Ballet 6 (3 of 3)",
+      "name": "Ballet 5 (3 of 3)",
       "levels": [
-        "pro 5"
+        "level 5"
       ],
       "duration": 1.5,
       "potentialTeachers": [
@@ -389,7 +385,7 @@
     {
       "name": "Pointe 5 (1 of 2)",
       "levels": [
-        "pro 5"
+        "level 5"
       ],
       "duration": 1.0,
       "potentialTeachers": [
@@ -400,7 +396,7 @@
     {
       "name": "Pointe 5 (2 of 2)",
       "levels": [
-        "pro 5"
+        "level 5"
       ],
       "duration": 1.0,
       "potentialTeachers": [
@@ -411,7 +407,7 @@
     {
       "name": "Ballet 6 (1 of 4)",
       "levels": [
-        "pro 6"
+        "level 6"
       ],
       "duration": 1.5,
       "potentialTeachers": [
@@ -426,7 +422,7 @@
     {
       "name": "Ballet 6 (2 of 4)",
       "levels": [
-        "pro 6"
+        "level 6"
       ],
       "duration": 1.5,
       "potentialTeachers": [
@@ -441,7 +437,7 @@
     {
       "name": "Ballet 6 (3 of 4)",
       "levels": [
-        "pro 6"
+        "level 6"
       ],
       "duration": 1.5,
       "potentialTeachers": [
@@ -456,7 +452,7 @@
     {
       "name": "Ballet 6 (4 of 4)",
       "levels": [
-        "pro 6"
+        "level 6"
       ],
       "duration": 1.75,
       "potentialTeachers": [
@@ -471,16 +467,16 @@
     {
       "name": "Modern Partnering",
       "levels": [
-        "pro 6",
-        "pro 5"
+        "level 6",
+        "level 5"
       ],
       "duration": 1.5
     },
     {
       "name": "Modern Horton",
       "levels": [
-        "pro 6",
-        "pro 5"
+        "level 6",
+        "level 5"
       ],
       "duration": 1.5,
       "potentialTeachers": [
@@ -490,7 +486,7 @@
     {
       "name": "Pointe 6 (1 of 2)",
       "levels": [
-        "pro 6"
+        "level 6"
       ],
       "duration": 1.0,
       "potentialTeachers": [
@@ -501,8 +497,8 @@
     {
       "name": "Pointe 6 (2 of 2)",
       "levels": [
-        "pro 6",
-        "pro 5"
+        "level 6",
+        "level 5"
       ],
       "duration": 1.0,
       "potentialTeachers": [

@@ -130,6 +130,9 @@ function renderSolutionAsHtmlElements(solution) {
         classDiv.style.overflow = 'hidden';
         classDiv.style.padding = '2px';
         classDiv.style.boxSizing = 'border-box';
+        classDiv.style.background = scheduledClass.color;
+        classDiv.style.borderRadius = '4px';
+
         roomColumn.appendChild(classDiv);
 
         currentTimeSlotIndex = startSlotIndex + numSlots;
