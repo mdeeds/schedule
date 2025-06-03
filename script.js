@@ -20,10 +20,11 @@ const colorMap = new Map([
   ["creative", "pink"],
   ["primary", "white"],
   ["preparatory", "orchid"],
-  ["level 1", "lightskyblue"],
+  ["level 1a", "lightskyblue"],
+  ["level 1b", "lightskyblue"],
   ["level 2", "maroon"], // "burgundy"],
   ["level 3", "purple"], // "aubergine"],
-  ["level 4", "darkmagenta"], // "royal blue"],
+  ["level 4", "mediumblue"], // "royal blue"],
   ["level 5", "#888"], // "black"],
   ["level 6", "#666"]
 ]);
@@ -97,7 +98,9 @@ async function loadClassInfo() {
 
     // Assign loaded data, ensuring IDs are generated if not present
     allLevels = getAllLevels(data.definedClasses);
+    console.log(`All levels: ${allLevels.join(', ')}`);
     allTeachers = getAllTeachers(data.definedClasses);
+    console.log(`All teachers: ${allTeachers.join(',')}`)
     allRooms = data.rooms;
     const timeSlotConfigs = data.timeSlots;
     allTimeSlots = [];
@@ -121,7 +124,7 @@ async function loadClassInfo() {
       if (definedClasses[i].start) {
         definedClasses[i].minStartTime = definedClasses[i].start;
         definedClasses[i].maxEndTime = definedClasses[i].start + definedClasses[i].duration;
-        console.log(JSON.stringify(definedClasses[i], null, 2));
+        // console.log(JSON.stringify(definedClasses[i], null, 2));
       }
       for (const level of definedClasses[i].levels) {
         if (colorMap.has(level)) {
@@ -209,8 +212,6 @@ solveBtn.addEventListener('click', () => {
   }, 100); // Small delay
 });
 
-let shownDomains = new Set();
-
 function getDomain(classToSchedule, currentAssignmentsMap) {
   const domain = []; // Stores { classId, teacherName, roomId, timeSlotIndex }
   const classInfo = definedClasses.find(c => c.id === classToSchedule.id);
@@ -240,24 +241,23 @@ function getDomain(classToSchedule, currentAssignmentsMap) {
         }
         let conflict = false;
         for (let j = 0; j < numSlots; j++) {
-          const timeSlot = allTimeSlots[i + j];
+          if (conflict) break;
+          const timeSlotIndex = i + j;
           // 1. Teacher conflict
-          if (currentAssignmentsMap.teacher[teacher] && currentAssignmentsMap.teacher[teacher][timeSlot.index]) {
+          if (currentAssignmentsMap.teacher[teacher][timeSlotIndex]) {
             conflict = true;
             break;
           }
           // 2. Room conflict
-          if (!conflict && currentAssignmentsMap.room[room] && currentAssignmentsMap.room[room][timeSlot.index]) {
+          if (currentAssignmentsMap.room[room][timeSlotIndex]) {
             conflict = true;
             break;
           }
           // 3. Level conflict
-          if (!conflict) {
-            for (const levelId of classInfo.levels) {
-              if (currentAssignmentsMap.level[levelId] && currentAssignmentsMap.level[levelId][timeSlot.index]) {
-                conflict = true;
-                break;
-              }
+          for (const levelId of classInfo.levels) {
+            if (currentAssignmentsMap.level[levelId][timeSlotIndex]) {
+              conflict = true;
+              break;
             }
           }
         }
@@ -271,11 +271,6 @@ function getDomain(classToSchedule, currentAssignmentsMap) {
       }
     }
   }
-  if (!shownDomains.has(classToSchedule.id)) {
-    shownDomains.add(classToSchedule.id);
-    console.log(`Class: ${classInfo.name} ${domain.length}`);
-  }
-
   return domain;
 }
 
@@ -351,7 +346,6 @@ function domainQuality(domain, assignmentsMap) {
   // Check the slot immediately preceding the start of this domain
   const firstTimeSlotIndex = domain.timeSlotIndex;
   const previousTimeSlotIndex = firstTimeSlotIndex - 1;
-  const timeSlot = allTimeSlots[firstTimeSlotIndex];
   const previousTimeSlot = allTimeSlots[previousTimeSlotIndex];
   const previousDay = previousTimeSlot.day;
   const currentDay = allTimeSlots[firstTimeSlotIndex].day;
@@ -387,7 +381,7 @@ function improveDomainOrder(smallestDomain, assignmentsMap) {
 }
 
 function checkBroadConstraints(assignmentsMap) {
-  // Check level constraints: A level cannot have classes on more than 4 different days.
+  // A level cannot have classes on more than 4 different days.
   const levelDayCount = {}; // { levelId: Set<day> }
   for (const levelId of allLevels) {
     levelDayCount[levelId] = new Set();
@@ -395,19 +389,50 @@ function checkBroadConstraints(assignmentsMap) {
 
   for (const [levelId, levelSchedule] of Object.entries(assignmentsMap.level)) {
     for (let slotIndex = 0; slotIndex < levelSchedule.length; slotIndex++) {
+      if (!levelSchedule[slotIndex]) continue;
       const day = allTimeSlots[slotIndex].day;
       levelDayCount[levelId].add(day);
     }
   }
   for (const levelId in levelDayCount) {
     if (levelDayCount[levelId].size > 5) {
-      // console.log(`Constraint violation: Level ${levelId} has classes on more than 4 days.`);
+      logFirstN(`Constraint violation: Level ${levelId} has classes on more than 5 days.`);
       return false;
+    }
+  }
+
+  // A day can't have the same class name twice.
+  const dayClassCount = {}; // { day: Set<className> }
+  const seenClassIds = new Set();
+  for (const [room, roomSchedule] of Object.entries(assignmentsMap.room)) {
+    for (let slotIndex = 0; slotIndex < roomSchedule.length; slotIndex++) {
+      if (!roomSchedule[slotIndex]) {
+        // No class in this slot.
+        continue;
+      }
+      const classId = roomSchedule[slotIndex];
+      if (seenClassIds.has(classId)) {
+        // Same class continuing into another slot.
+        continue;
+      }
+      seenClassIds.add(classId);
+      const classInfo = definedClasses.find(c => c.id === classId);
+      const timeSlot = allTimeSlots[slotIndex];
+      const day = timeSlot.day;
+      if (!dayClassCount[day]) {
+        dayClassCount[day] = new Set();
+      }
+      if (dayClassCount[day].has(classInfo.name)) {
+        logFirstN(`Constraint violation: Class ${classInfo.name} is scheduled more than once on ${day}.`)
+        return false;
+      }
+      dayClassCount[day].add(classInfo.name);
     }
   }
 
   // Add other broad constraints here if needed
   // For example, check if any teacher is scheduled for more than X consecutive hours, etc.
+
   return true; // All broad constraints passed
 }
 
@@ -455,6 +480,8 @@ function solveRecursive(unscheduledClasses, assignmentsMap) {
     return false;
   }
 
+  logFirstN(`Scheduling ${bestClassToSchedule.name}`);
+
   const nextUnscheduledClasses = unscheduledClasses.filter(c => c.id !== bestClassToSchedule.id);
 
   // // Shuffle the domain to explore different possibilities
@@ -476,7 +503,7 @@ function solveRecursive(unscheduledClasses, assignmentsMap) {
       assignmentsMap.teacher[assignment.teacherName][timeSlotIndex] = assignment.classId;
       assignmentsMap.room[assignment.room][timeSlotIndex] = assignment.classId;
       for (const levelId of classInfo.levels) {
-        assignmentsMap.level[levelId] = assignmentsMap.level[levelId] || {}; // Ensure levelId entry exists
+        assignmentsMap.level[levelId] = assignmentsMap.level[levelId] || []; // Ensure levelId entry exists
         assignmentsMap.level[levelId][timeSlotIndex] = assignment.classId;
       }
     }
@@ -492,6 +519,7 @@ ${JSON.stringify(assignment, null, 2)}`);
       }
     }
 
+    logFirstN(`Backtracking: ${assignment.className} can't be at ${assignment.timeSlotLabel}`);
     for (let i = 0; i < numSlots; ++i) {
       // Backtrack: Remove assignment
       const timeSlotIndex = assignment.timeSlotIndex + i;
@@ -502,28 +530,18 @@ ${JSON.stringify(assignment, null, 2)}`);
       }
     }
   }
-  // logEvery10Seconds(`Backtracking`);
   return false; // Exhausted this branch without reaching a solution
 }
 
 function renderSolutions() {
   solutionsDisplayEl.innerHTML = '';
   if (solutions.length === 0) {
-    solutionsDisplayEl.innerHTML = '<p class="text-gray-500">No valid schedules found with the current constraints and classes.</p>';
     return;
   }
-
   for (const solution of solutions) {
     renderSolution(solution);
     break;
   };
-
-  // Add a button to view the first solution in the table format
-  const viewTableBtn = document.createElement('button');
-  viewTableBtn.textContent = 'View First Schedule as Table';
-  viewTableBtn.className = 'btn btn-primary mt-4';
-  viewTableBtn.onclick = () => renderScheduleTable(solutions[0]);
-  solutionsDisplayEl.appendChild(viewTableBtn);
 }
 
 // --- INITIALIZATION ---
