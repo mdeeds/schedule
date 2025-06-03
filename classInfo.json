@@ -35,13 +35,10 @@
       "levels": [
         "creative"
       ],
+      "maxEndTime": 17.00,
       "potentialTeachers": [
         "Jasmine"
       ],
-      "dayOfWeek": [
-        "Thu"
-      ],
-      "start": 15.5,
       "duration": 0.75
     },
     {
@@ -49,6 +46,7 @@
       "levels": [
         "creative"
       ],
+      "maxEndTime": 17.00,
       "potentialTeachers": [
         "Jasmine"
       ],
@@ -63,12 +61,10 @@
       "levels": [
         "primary"
       ],
+      "maxEndTime": 17.00,
       "potentialTeachers": [
         "Christine",
         "Jasmine"
-      ],
-      "dayOfWeek": [
-        "Wed"
       ],
       "start": 16.0,
       "duration": 1.0
@@ -78,6 +74,7 @@
       "levels": [
         "primary"
       ],
+      "maxEndTime": 17.00,
       "potentialTeachers": [
         "Christine",
         "Jasmine"
@@ -93,13 +90,10 @@
       "levels": [
         "preparatory"
       ],
+      "maxEndTime": 17.00,
       "potentialTeachers": [
         "Jasmine"
       ],
-      "dayOfWeek": [
-        "Tue"
-      ],
-      "start": 16.5,
       "duration": 1.0
     },
     {
@@ -107,6 +101,7 @@
       "levels": [
         "preparatory"
       ],
+      "maxEndTime": 17.00,
       "potentialTeachers": [
         "Jasmine"
       ],
@@ -122,6 +117,7 @@
         "level 1a",
         "level 1b"
       ],
+      "maxEndTime": 17.00,
       "dayOfWeek": [
         "Fri"
       ],
@@ -138,9 +134,7 @@
       "levels": [
         "level 1a"
       ],
-      "dayOfWeek": [
-        "Sat"
-      ],
+      "maxEndTime": 17.00,
       "duration": 1.0,
       "potentialTeachers": [
         "Karena",
@@ -156,9 +150,7 @@
       "levels": [
         "level 1b"
       ],
-      "dayOfWeek": [
-        "Fri"
-      ],
+      "maxEndTime": 17.00,
       "duration": 1.0,
       "potentialTeachers": [
         "Karena",
@@ -297,11 +289,11 @@
       ]
     },
     {
-      "name": "Ballet 4",
+      "name": "Ballet 4 + Pointe 4",
       "levels": [
         "level 4"
       ],
-      "duration": 1.5,
+      "duration": 2.5,
       "potentialTeachers": [
         "Charlotte",
         "Karena",
@@ -321,17 +313,6 @@
         "Nicole",
         "Eva",
         "Robbi"
-      ]
-    },
-    {
-      "name": "Pointe 4",
-      "levels": [
-        "level 4"
-      ],
-      "duration": 1.0,
-      "potentialTeachers": [
-        "Charlotte",
-        "Karena"
       ]
     },
     {
@@ -362,11 +343,11 @@
       ]
     },
     {
-      "name": "Ballet 5",
+      "name": "Ballet 5 + Pointe 5",
       "levels": [
         "level 5"
       ],
-      "duration": 1.5,
+      "duration": 2.5,
       "potentialTeachers": [
         "Charlotte",
         "Karena",
@@ -377,67 +358,15 @@
       ]
     },
     {
-      "name": "Ballet 5",
+      "name": "Ballet 5 + Pointe 5",
       "levels": [
         "level 5"
       ],
-      "duration": 1.5,
+      "duration": 2.5,
       "potentialTeachers": [
         "Charlotte",
         "Karena",
         "Nicole",
-        "Fiona",
-        "Christine",
-        "Eva"
-      ]
-    },
-    {
-      "name": "Pointe 5",
-      "levels": [
-        "level 5"
-      ],
-      "duration": 1.0,
-      "potentialTeachers": [
-        "Charlotte",
-        "Karena"
-      ]
-    },
-    {
-      "name": "Pointe 5",
-      "levels": [
-        "level 5"
-      ],
-      "duration": 1.0,
-      "potentialTeachers": [
-        "Charlotte",
-        "Karena"
-      ]
-    },
-    {
-      "name": "Ballet 6",
-      "levels": [
-        "level 6"
-      ],
-      "duration": 1.5,
-      "potentialTeachers": [
-        "Charlotte",
-        "Karena",
-        "Nicole",
-        "Fiona",
-        "Christine",
-        "Eva"
-      ]
-    },
-    {
-      "name": "Ballet 6",
-      "levels": [
-        "level 6"
-      ],
-      "duration": 1.5,
-      "potentialTeachers": [
-        "Nicole",
-        "Charlotte",
-        "Karena",
         "Fiona",
         "Christine",
         "Eva"
@@ -496,23 +425,23 @@
       ]
     },
     {
-      "name": "Pointe 6",
+      "name": "Ballet 6 + Pointe 6",
       "levels": [
         "level 6"
       ],
-      "duration": 1.0,
+      "duration": 2.5,
       "potentialTeachers": [
         "Charlotte",
         "Karena"
       ]
     },
     {
-      "name": "Pointe 6",
+      "name": "Ballet 6 + Pointe 6",
       "levels": [
         "level 6",
         "level 5"
       ],
-      "duration": 1.0,
+      "duration": 2.5,
       "potentialTeachers": [
         "Charlotte",
         "Karena"

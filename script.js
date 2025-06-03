@@ -212,67 +212,6 @@ solveBtn.addEventListener('click', () => {
   }, 100); // Small delay
 });
 
-function getDomain(classToSchedule, currentAssignmentsMap) {
-  const domain = []; // Stores { classId, teacherName, roomId, timeSlotIndex }
-  const classInfo = definedClasses.find(c => c.id === classToSchedule.id);
-
-  const allowedDays = classInfo.dayOfWeek ? new Set(classInfo.dayOfWeek) : null;
-
-  for (const teacher of classInfo.potentialTeachers) {
-    for (const room of allRooms) { // room is a string
-      const numSlots = Math.round(classInfo.duration * 4);
-      for (let i = 0; i < allTimeSlots.length - numSlots + 1; i++) {
-        // timeSlot is {id, day, startHour, label}
-        const firstTimeSlot = allTimeSlots[i];
-        const lastTimeSlot = allTimeSlots[i + numSlots - 1];
-        if (lastTimeSlot.day !== firstTimeSlot.day) {
-          // Classes can't go to the next day!
-          continue;
-        }
-        if (allowedDays && !allowedDays.has(firstTimeSlot.day)) {
-          continue;
-        }
-        if (classInfo.minStartTime && firstTimeSlot.startHour < classInfo.minStartTime) {
-          continue;
-        }
-        if (classInfo.maxEndTime &&
-          firstTimeSlot.startHour + classInfo.duration > classInfo.maxEndTime) {
-          continue;
-        }
-        let conflict = false;
-        for (let j = 0; j < numSlots; j++) {
-          if (conflict) break;
-          const timeSlotIndex = i + j;
-          // 1. Teacher conflict
-          if (currentAssignmentsMap.teacher[teacher][timeSlotIndex]) {
-            conflict = true;
-            break;
-          }
-          // 2. Room conflict
-          if (currentAssignmentsMap.room[room][timeSlotIndex]) {
-            conflict = true;
-            break;
-          }
-          // 3. Level conflict
-          for (const levelId of classInfo.levels) {
-            if (currentAssignmentsMap.level[levelId][timeSlotIndex]) {
-              conflict = true;
-              break;
-            }
-          }
-        }
-        if (!conflict) {
-          domain.push({
-            classId: classToSchedule.id, teacherName: teacher, room,
-            timeSlotIndex: firstTimeSlot.index, duration: classInfo.duration,
-            className: classInfo.name, timeSlotLabel: firstTimeSlot.label
-          });
-        }
-      }
-    }
-  }
-  return domain;
-}
 
 function findTeacherName(assignmentsMap, timeSlotIndex, classId) {
   for (const teacherName in assignmentsMap.teacher) {
@@ -351,15 +290,24 @@ function domainQuality(domain, assignmentsMap) {
   const currentDay = allTimeSlots[firstTimeSlotIndex].day;
   if (previousDay != currentDay) return 0;
 
+  const roomAssignments = assignmentsMap.room[domain.room];
+  const isSameRoom = !!roomAssignments[previousTimeSlotIndex];
+
+  const previousClassId = assignmentsMap.room[domain.room] ? assignmentsMap.room[domain.room][previousTimeSlotIndex] : null;
+  const previousClassInfo = definedClasses.find(c => c.id === previousClassId);
   const classInfo = definedClasses.find(c => c.id === domain.classId);
-  const previousAssignmentRoom = assignmentsMap.room[domain.room] ? assignmentsMap.room[domain.room][previousTimeSlotIndex] : null;
-  const assignmentRoom = assignmentsMap.room[domain.room] ? assignmentsMap.room[domain.room][firstTimeSlotIndex] : null;
-  // TODO: Figure out how to match levels.  We want to match levels if any of the levels at the two times match.
 
-  const isSameRoom = previousAssignmentRoom === assignmentRoom; // Assuming room assignment matches teacher assignment for the same class
-  // const isSameLevel = previousAssignmentLevel === assignmentLevel; // Assuming level assignment matches teacher assignment for the same class
-  const isSameLevel = true;
-
+  let isSameLevel = false;
+  if (previousClassInfo) {
+    for (let i = 0; i < previousClassInfo.levels.length; i++) {
+      for (let j = 0; j < classInfo.levels.length; j++) {
+        if (previousClassInfo.levels[i] === classInfo.levels[j]) {
+          hasSameLevel = true;
+          break;
+        }
+      }
+    }
+  }
   if (isSameRoom && isSameLevel) {
     return 0; // Immediately after something in the same room at the same level
   } else if (isSameLevel) {
@@ -380,61 +328,6 @@ function improveDomainOrder(smallestDomain, assignmentsMap) {
   });
 }
 
-function checkBroadConstraints(assignmentsMap) {
-  // A level cannot have classes on more than 4 different days.
-  const levelDayCount = {}; // { levelId: Set<day> }
-  for (const levelId of allLevels) {
-    levelDayCount[levelId] = new Set();
-  }
-
-  for (const [levelId, levelSchedule] of Object.entries(assignmentsMap.level)) {
-    for (let slotIndex = 0; slotIndex < levelSchedule.length; slotIndex++) {
-      if (!levelSchedule[slotIndex]) continue;
-      const day = allTimeSlots[slotIndex].day;
-      levelDayCount[levelId].add(day);
-    }
-  }
-  for (const levelId in levelDayCount) {
-    if (levelDayCount[levelId].size > 5) {
-      logFirstN(`Constraint violation: Level ${levelId} has classes on more than 5 days.`);
-      return false;
-    }
-  }
-
-  // A day can't have the same class name twice.
-  const dayClassCount = {}; // { day: Set<className> }
-  const seenClassIds = new Set();
-  for (const [room, roomSchedule] of Object.entries(assignmentsMap.room)) {
-    for (let slotIndex = 0; slotIndex < roomSchedule.length; slotIndex++) {
-      if (!roomSchedule[slotIndex]) {
-        // No class in this slot.
-        continue;
-      }
-      const classId = roomSchedule[slotIndex];
-      if (seenClassIds.has(classId)) {
-        // Same class continuing into another slot.
-        continue;
-      }
-      seenClassIds.add(classId);
-      const classInfo = definedClasses.find(c => c.id === classId);
-      const timeSlot = allTimeSlots[slotIndex];
-      const day = timeSlot.day;
-      if (!dayClassCount[day]) {
-        dayClassCount[day] = new Set();
-      }
-      if (dayClassCount[day].has(classInfo.name)) {
-        logFirstN(`Constraint violation: Class ${classInfo.name} is scheduled more than once on ${day}.`)
-        return false;
-      }
-      dayClassCount[day].add(classInfo.name);
-    }
-  }
-
-  // Add other broad constraints here if needed
-  // For example, check if any teacher is scheduled for more than X consecutive hours, etc.
-
-  return true; // All broad constraints passed
-}
 
 let smallestRemaining = Infinity;
 function solveRecursive(unscheduledClasses, assignmentsMap) {
@@ -443,7 +336,7 @@ function solveRecursive(unscheduledClasses, assignmentsMap) {
     // console.log(`Remaining classes to schedule: ${smallestRemaining}`);
   }
 
-  // logEvery10Seconds(`Unscheduled: ${unscheduledClasses.length}`);
+  logEvery10Seconds(`Unscheduled: ${unscheduledClasses.length}`);
 
   if (unscheduledClasses.length === 0) {
     // All classes scheduled, found a solution
